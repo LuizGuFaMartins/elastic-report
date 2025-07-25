@@ -9,21 +9,18 @@ import { MailService } from 'src/services/mail/mail.service';
 import { ElasticService } from 'src/services/elastic/elastic.service';
 import { ElasticServiceV2 } from 'src/services/elastic/elastic-v2.service';
 import { reportMock } from 'src/shared/mocks/report-mock';
-import * as dayjs from 'dayjs';
-import * as utc from 'dayjs/plugin/utc';
-import * as timezone from 'dayjs/plugin/timezone';
+
 import { DayjsService } from 'src/services/commom/dayjs.service';
-
-
+import { ElasticServiceV3 } from 'src/services/elastic/elastic-v3.service';
 
 @Injectable()
 export class ReportCronService {
   private readonly logger = new Logger(ReportCronService.name);
-  private dayjs: typeof dayjs | (() => { (): any; new(): any; format: { (arg0: string): any; new(): any; }; });
+  private dayjs: any;
 
   constructor(
     private readonly pdfService: PdfService,
-    private readonly elasticService: ElasticServiceV2,
+    private readonly elasticService: ElasticServiceV3,
     private readonly mailService: MailService,
     private readonly dayjsService: DayjsService,
   ) {
@@ -34,9 +31,11 @@ export class ReportCronService {
   async handleWeeklyReport() {
     this.logger.debug('Iniciando geração de relatório...');
 
-    const pdfReport: { name: string; buffer: any } = await this.generateReportBufferByService('Audit_API');
+    const serviceName = 'QualiexDecisions'; // Audit_API
+    const pdfReport: { name: string; buffer: any } =
+      await this.generateReportBufferByService(serviceName);
 
-    await this.saveReportAsFile(pdfReport)
+    // await this.saveReportAsFile(pdfReport);
     // await this.sendReportEmail(pdfReport)
 
     this.logger.debug('Finalizando geração de relatório...');
@@ -45,7 +44,7 @@ export class ReportCronService {
   async generateReportBufferByService(
     service: string,
   ): Promise<{ name: string; buffer: any }> {
-    const data = await this.elasticService.getTransactionGroups(service);
+    const data = await this.elasticService.generateHealthReportData(service);
     console.log('data: ', data);
 
     const MOCK = reportMock; // remover

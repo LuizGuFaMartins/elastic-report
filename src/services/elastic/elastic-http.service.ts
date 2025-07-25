@@ -4,7 +4,7 @@ import { firstValueFrom } from 'rxjs';
 import { AxiosRequestConfig } from 'axios';
 
 @Injectable()
-export class KibanaHttpService {
+export class ElasticHttpService {
   BASE_URL = process.env.ELASTIC_URL;
 
   constructor(private readonly httpService: HttpService) {}

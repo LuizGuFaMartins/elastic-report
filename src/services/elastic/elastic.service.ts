@@ -2,14 +2,14 @@ import { Injectable } from '@nestjs/common';
 import * as dayjs from 'dayjs';
 import * as utc from 'dayjs/plugin/utc';
 import * as timezone from 'dayjs/plugin/timezone';
-import { KibanaHttpService } from './kibana-http.service';
+import { ElasticHttpService } from './elastic-http.service';
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 @Injectable()
 export class ElasticService {
-  constructor(private readonly kibanaHttp: KibanaHttpService) {}
+  constructor(private readonly kibanaHttp: ElasticHttpService) {}
 
   private getTimeRange() {
     const tz = dayjs.tz.guess();

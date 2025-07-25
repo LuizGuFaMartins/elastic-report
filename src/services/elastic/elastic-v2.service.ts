@@ -1,19 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { KibanaHttpService } from './kibana-http.service';
-import * as dayjs from 'dayjs';
-import * as utc from 'dayjs/plugin/utc';
-import * as timezone from 'dayjs/plugin/timezone';
-
-dayjs.extend(utc);
-dayjs.extend(timezone);
+import { ElasticHttpService } from './elastic-http.service';
+import { DayjsService } from '../commom/dayjs.service';
 
 @Injectable()
 export class ElasticServiceV2 {
-  constructor(private readonly kibanaHttp: KibanaHttpService) {}
+  private dayjs: any;
+
+  constructor(
+    private readonly http: ElasticHttpService,
+    private readonly dayjsService: DayjsService,
+  ) {
+    this.dayjs = this.dayjsService.getInstance();
+  }
 
   private getTimeData() {
-    const tz = 'America/Sao_Paulo';
-    const end = dayjs().tz(tz);
+    const tz = process.env.ELASTIC_TIMEZONE;
+    const end = this.dayjs().tz(tz);
     const start = end.subtract(7, 'day');
     return {
       startISO: start.toISOString(),
@@ -37,15 +39,32 @@ export class ElasticServiceV2 {
     };
   }
 
+  private getServiceFilter(service: string) {
+    return {
+      bool: {
+        should: [
+          {
+            term: {
+              software: {
+                value: service,
+              },
+            },
+          },
+        ],
+        minimum_should_match: 1,
+      },
+    };
+  }
+
   async getLatency(serviceName: string) {
     const body = {
       size: 0,
       query: {
         bool: {
           filter: [
-            { term: { 'service.name': serviceName } },
-            { term: { 'processor.event': 'transaction' } },
+            this.getServiceFilter(serviceName),
             this.getDateRangeFilter(),
+            { term: { 'processor.event': 'transaction' } },
           ],
         },
       },
@@ -58,7 +77,7 @@ export class ElasticServiceV2 {
       },
     };
 
-    return await this.kibanaHttp.post('/_search', body);
+    return await this.http.post('/_search', body);
   }
 
   async getThroughput(serviceName: string) {
@@ -68,7 +87,7 @@ export class ElasticServiceV2 {
       query: {
         bool: {
           filter: [
-            { term: { 'service.name': serviceName } },
+            this.getServiceFilter(serviceName),
             { term: { 'processor.event': 'transaction' } },
             this.getDateRangeFilter(),
           ],
@@ -85,7 +104,7 @@ export class ElasticServiceV2 {
       },
     };
 
-    return await this.kibanaHttp.post('/_search', body);
+    return await this.http.post('/_search', body);
   }
 
   async getErrorRate(serviceName: string) {
@@ -95,7 +114,7 @@ export class ElasticServiceV2 {
       query: {
         bool: {
           filter: [
-            { term: { 'service.name': serviceName } },
+            this.getServiceFilter(serviceName),
             this.getDateRangeFilter(),
           ],
         },
@@ -114,7 +133,7 @@ export class ElasticServiceV2 {
       },
     };
 
-    return await this.kibanaHttp.post('/_search', body);
+    return await this.http.post('/_search', body);
   }
 
   async getTopFailedTransactions(serviceName: string) {
@@ -124,7 +143,7 @@ export class ElasticServiceV2 {
         bool: {
           filter: [
             { term: { 'processor.event': 'error' } },
-            { term: { 'service.name': serviceName } },
+            this.getServiceFilter(serviceName),
             this.getDateRangeFilter(),
           ],
         },
@@ -139,7 +158,7 @@ export class ElasticServiceV2 {
       },
     };
 
-    return await this.kibanaHttp.post(`/${process.env.ELASTIC_INDEX}/_search`, body);
+    return await this.http.post(`/${process.env.ELASTIC_INDEX}/_search`, body);
   }
 
   async getTransactionGroups(serviceName: string) {
@@ -149,7 +168,7 @@ export class ElasticServiceV2 {
         bool: {
           filter: [
             { term: { 'processor.event': 'transaction' } },
-            { term: { 'service.name': serviceName } },
+            this.getServiceFilter(serviceName),
             this.getDateRangeFilter(),
           ],
         },
@@ -172,7 +191,7 @@ export class ElasticServiceV2 {
       },
     };
 
-    return await this.kibanaHttp.post(`/${process.env.ELASTIC_INDEX}/_search`, body);
+    return await this.http.post(`/${process.env.ELASTIC_INDEX}/_search`, body);
   }
 
   async getTopUsersByMethod() {
@@ -182,9 +201,7 @@ export class ElasticServiceV2 {
       size: 0,
       query: {
         bool: {
-          filter: [
-            this.getDateRangeFilter('dateTime'),
-          ],
+          filter: [this.getDateRangeFilter('dateTime')],
           must_not: [
             {
               match_phrase: {
@@ -221,6 +238,6 @@ export class ElasticServiceV2 {
       },
     };
 
-    return await this.kibanaHttp.post(`/${process.env.ELASTIC_INDEX}/_search`, body);
+    return await this.http.post(`/${process.env.ELASTIC_INDEX}/_search`, body);
   }
 }
