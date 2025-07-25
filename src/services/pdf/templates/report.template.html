@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <title>Relatório Semanal de Performance APM</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 40px;
+      background-color: #f5f7fa;
+      color: #333;
+    }
+
+    h1, h2 {
+      color: #2b3a67;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: auto;
+      background: #fff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    }
+
+    .section {
+      margin-bottom: 48px;
+    }
+
+    .section-title {
+      font-size: 1.5em;
+      margin-bottom: 16px;
+      border-bottom: 2px solid #e3e8f0;
+      padding-bottom: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+
+    th, td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid #eaeaea;
+    }
+
+    th {
+      background-color: #f0f4f8;
+    }
+
+    .highlight {
+      background-color: #fef3c7;
+    }
+
+    .status-green {
+      color: green;
+      font-weight: bold;
+    }
+
+    .status-yellow {
+      color: orange;
+      font-weight: bold;
+    }
+
+    .status-red {
+      color: red;
+      font-weight: bold;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 0.9em;
+      color: #888;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📊 Relatório Semanal de Performance</h1>
+    <p>Período: <strong>{{startDate}}</strong> a <strong>{{endDate}}</strong></p>
+
+    <!-- Resumo Executivo -->
+    <div class="section">
+      <h2 class="section-title">Resumo Executivo</h2>
+      <table>
+        <tr>
+          <th>Total de Requisições</th>
+          <td>{{totalRequests}}</td>
+        </tr>
+        <tr>
+          <th>Taxa de Erro Média</th>
+          <td>{{errorRate}}%</td>
+        </tr>
+        <tr>
+          <th>Latência Média</th>
+          <td>{{avgLatency}} ms</td>
+        </tr>
+        <tr>
+          <th>Serviço com Maior Latência</th>
+          <td>{{worstLatencyService}}</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Visão por Serviço -->
+    <div class="section">
+      <h2 class="section-title">Visão por Serviço</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Serviço</th>
+            <th>Throughput</th>
+            <th>Latência Média</th>
+            <th>Taxa de Erro</th>
+            <th>Endpoints Críticos</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each services}}
+          <tr>
+            <td>{{name}}</td>
+            <td>{{throughput}} req/s</td>
+            <td>{{latency}} ms</td>
+            <td>{{errorRate}}%</td>
+            <td>{{criticalEndpoint}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Endpoints com Problemas -->
+    <div class="section">
+      <h2 class="section-title">Top Endpoints Problemáticos</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Endpoint</th>
+            <th>Latência Média</th>
+            <th>Taxa de Erro</th>
+            <th>Impacto</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each criticalEndpoints}}
+          <tr class="{{#if isCritical}}highlight{{/if}}">
+            <td>{{name}}</td>
+            <td>{{latency}} ms</td>
+            <td>{{errorRate}}%</td>
+            <td>{{impact}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Tendências -->
+    <div class="section">
+      <h2 class="section-title">Tendências Semanais</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Métrica</th>
+            <th>Semana Atual</th>
+            <th>Semana Anterior</th>
+            <th>Variação</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each trends}}
+          <tr>
+            <td>{{metric}}</td>
+            <td>{{current}}</td>
+            <td>{{previous}}</td>
+            <td class="{{variationClass}}">{{variation}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Anomalias -->
+    <div class="section">
+      <h2 class="section-title">Anomalias Detectadas</h2>
+      <ul>
+        {{#each anomalies}}
+          <li><strong>{{timestamp}}:</strong> {{description}}</li>
+        {{/each}}
+      </ul>
+    </div>
+
+    <!-- Propostas -->
+    <div class="section">
+      <h2 class="section-title">Propostas de Melhoria</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Proposta</th>
+            <th>Benefício Esperado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each improvements}}
+          <tr>
+            <td>{{item}}</td>
+            <td>{{proposal}}</td>
+            <td>{{benefit}}</td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="footer">
+      Relatório gerado automaticamente via Kibana APM – {{generatedAt}}
+    </div>
+  </div>
+</body>
+</html>
