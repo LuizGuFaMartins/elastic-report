@@ -4,14 +4,11 @@ import * as nodemailer from 'nodemailer';
 import * as fs from 'fs';
 import * as path from 'path';
 import { PdfService } from 'src/services/pdf/pdf.service';
-import { KibanaService } from 'src/services/elastic/kibana.service';
 import { MailService } from 'src/services/mail/mail.service';
-import { ElasticService } from 'src/services/elastic/elastic.service';
-import { ElasticServiceV2 } from 'src/services/elastic/elastic-v2.service';
 import { reportMock } from 'src/shared/mocks/report-mock';
 
 import { DayjsService } from 'src/services/commom/dayjs.service';
-import { ElasticServiceV3 } from 'src/services/elastic/elastic-v3.service';
+import { ElasticService } from 'src/services/elastic/elastic.service';
 
 @Injectable()
 export class ReportCronService {
@@ -20,7 +17,7 @@ export class ReportCronService {
 
   constructor(
     private readonly pdfService: PdfService,
-    private readonly elasticService: ElasticServiceV3,
+    private readonly elasticService: ElasticService,
     private readonly mailService: MailService,
     private readonly dayjsService: DayjsService,
   ) {
