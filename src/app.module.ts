@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { HttpModule } from '@nestjs/axios';
 import { ElasticHttpService } from './services/elastic/elastic-http.service';
 import { ConfigModule } from '@nestjs/config';
-import { ReportCronService } from './jobs/schedulers/report-cron.service';
+import { ReportCronService } from './services/schedulers/report-cron.service';
 import { MailService } from './services/mail/mail.service';
 import { PdfService } from './services/pdf/pdf.service';
 import { MailerModule } from '@nestjs-modules/mailer';

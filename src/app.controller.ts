@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
-import { ReportCronService } from './jobs/schedulers/report-cron.service';
+import { ReportCronService } from './services/schedulers/report-cron.service';
 
 @Controller()
 export class AppController {
