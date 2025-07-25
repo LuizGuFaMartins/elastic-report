@@ -8,7 +8,7 @@ import * as puppeteer from 'puppeteer';
 export class PdfService {
   private templatePath =
     process.env.REPORT_TEMPLATE_PATH ||
-    path.join(__dirname, 'templates', 'report.template.html');
+    path.join(__dirname, 'templates', 'report-v3.template.html');
 
   async generateReport(data: any): Promise<Buffer> {
     const html = this.compileTemplate(data);
