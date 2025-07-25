@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as Handlebars from 'handlebars';
@@ -6,9 +6,11 @@ import * as puppeteer from 'puppeteer';
 
 @Injectable()
 export class PdfService {
+  private readonly logger = new Logger(PdfService.name);
+
   private templatePath =
     process.env.REPORT_TEMPLATE_PATH ||
-    path.join(__dirname, 'templates', 'report-v3.template.html');
+    path.join(__dirname, 'templates', 'report.template.html');
 
   async generateReport(data: any): Promise<Buffer> {
     const html = this.compileTemplate(data);
@@ -41,6 +43,6 @@ export class PdfService {
 
   public saveFile(filePath, buffer): void {
     fs.writeFileSync(filePath, buffer);
-    console.log(`✅ Relatório salvo em ${filePath}.`);
+    this.logger.debug(`Relatório salvo em ${filePath}.`);
   }
 }

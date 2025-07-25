@@ -6,9 +6,9 @@ import * as nodemailer from 'nodemailer';
 export class MailService {
   private readonly logger = new Logger(MailService.name);
 
-  constructor(private readonly mailService: MailerService) {}
+  constructor(private readonly mailService: MailerService) { }
 
-  async sendPdfReport(to: string[], pdfBuffer: Buffer, subject?: string) {
+  async sendPdfReport(to: string[], pdfReport: { name: string; buffer: any }, subject?: string) {
     try {
       const info = await this.mailService.sendMail({
         from: `"APM Reports" <${process.env.SMTP_FROM}>`,
@@ -17,15 +17,15 @@ export class MailService {
         text: 'Segue em anexo o relatório semanal de performance.',
         attachments: [
           {
-            filename: 'relatorio-apm.pdf',
-            content: pdfBuffer,
+            filename: pdfReport.name,
+            content: pdfReport.buffer,
           },
         ],
       });
 
-      this.logger.log(`📧 E-mail enviado com sucesso: ${info.messageId}`);
+      this.logger.log(`E-mail enviado com sucesso: ${info.messageId}`);
     } catch (error) {
-      this.logger.error('❌ Falha ao enviar e-mail:', error);
+      this.logger.error('Falha ao enviar e-mail:', error);
       throw error;
     }
   }

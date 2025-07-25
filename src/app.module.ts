@@ -11,6 +11,7 @@ import { PdfService } from './services/pdf/pdf.service';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ElasticService } from './services/elastic/elastic.service';
 import { ElasticServiceV2 } from './services/elastic/elastic-v2.service';
+import { DayjsService } from './services/commom/dayjs.service';
 
 @Module({
   controllers: [AppController],
@@ -36,6 +37,7 @@ import { ElasticServiceV2 } from './services/elastic/elastic-v2.service';
     PdfService,
     ElasticService,
     ElasticServiceV2,
+    DayjsService,
   ],
 })
 export class AppModule {}
