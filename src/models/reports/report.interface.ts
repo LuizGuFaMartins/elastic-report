@@ -43,56 +43,7 @@ export interface Report {
     ];
   };
 
-  services: [
-    {
-      name: string;
-      status: string;
-      avgLatency: string;
-      volume: string;
-      errorRate: string;
-      changes: string;
-    },
-    {
-      name: string;
-      status: string;
-      avgLatency: string;
-      volume: string;
-      errorRate: string;
-      changes: string;
-    },
-    {
-      name: string;
-      status: string;
-      avgLatency: string;
-      volume: string;
-      errorRate: string;
-      changes: string;
-    },
-    {
-      name: string;
-      status: string;
-      avgLatency: string;
-      volume: string;
-      errorRate: string;
-      changes: string;
-    },
-    {
-      name: string;
-      status: string;
-      avgLatency: string;
-      volume: string;
-      errorRate: string;
-      changes: string;
-    },
-    {
-      name: string;
-      status: string;
-      avgLatency: string;
-      volume: string;
-      errorRate: string;
-      changes: string;
-    },
-  ];
+  services: ServiceHealth[];
 
   trends: {
     anomalies: [

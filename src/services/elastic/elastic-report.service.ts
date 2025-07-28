@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { ElasticHttpService } from './elastic-http.service';
 import { DayjsService } from '../commom/dayjs.service';
 import { OverviewParser } from './parsers/overview-parser.service';
-import { EndpointsParser } from './parsers/top-latency-endpoint-parser.service';
+import { EndpointsParser } from './parsers/endpoints-parser.service';
 import { ElasticQueryService } from './elastic-query.service';
+import { ServicesHealthParser } from './parsers/services-health-parser.service';
 
 @Injectable()
 export class ElasticReportService {
@@ -14,6 +15,7 @@ export class ElasticReportService {
     private readonly overviewParser: OverviewParser,
     private readonly endpointsParser: EndpointsParser,
     private readonly elasticQueryService: ElasticQueryService,
+    private readonly servicesHealthParser: ServicesHealthParser,
   ) {
     this.dayjs = this.dayjsService.getInstance();
   }
@@ -58,7 +60,8 @@ export class ElasticReportService {
           1000,
         );
       // const errorAnalysis = await this.getErrorAnalysis(serviceName, companyId);
-      // const serviceHealth = await this.getServiceHealth(serviceName, companyId);
+      const serviceHealth =
+        await this.elasticQueryService.getServiceHealth(companyId);
       // const trendAnalysis = await this.getTrendAnalysis(serviceName, companyId);
 
       // Last week
@@ -82,11 +85,12 @@ export class ElasticReportService {
           1000,
           'lastWeek',
         );
-      // const lastWeekTrrorAnalysis = await this.getErrorAnalysis(
-      //   serviceName,
-      //   companyId,
-      //   'lastWeek',
-      // );
+      // const lastWeekTrrorAnalysis =
+      //   await this.elasticQueryService.getErrorAnalysis(
+      //     serviceName,
+      //     companyId,
+      //     'lastWeek',
+      //   );
       // const lastWeekServiceHealth = await this.getServiceHealth(
       //   serviceName,
       //   companyId,
@@ -115,7 +119,7 @@ export class ElasticReportService {
           highestErrors: lastWeekTopErrorEndpoints,
         }),
         // errors,
-        // serviceHealth,
+        services: this.servicesHealthParser.parse(serviceHealth),
         // trendAnalysis,
         generatedAt: new Date().toISOString(),
         period: this.elasticQueryService.getTimeData(),

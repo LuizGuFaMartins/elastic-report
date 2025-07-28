@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ElasticHttpService } from './elastic-http.service';
 import { DayjsService } from '../commom/dayjs.service';
 import { OverviewParser } from './parsers/overview-parser.service';
-import { EndpointsParser } from './parsers/top-latency-endpoint-parser.service';
+import { EndpointsParser } from './parsers/endpoints-parser.service';
 
 @Injectable()
 export class ElasticQueryService {
@@ -478,16 +478,10 @@ export class ElasticQueryService {
 
   // 5. Saúde por Serviço
   async getServiceHealth(
-    serviceName?: string,
     companyId?: string,
     period: 'week' | 'lastWeek' = 'week',
   ) {
-    const filters =
-      period === 'lastWeek'
-        ? [this.getPreviousWeekTimeData()]
-        : [this.getDateRangeFilter()];
-
-    if (serviceName) filters.push(this.getServiceFilter(serviceName));
+    const filters = [this.getDateRangeFilter(period)];
     if (companyId) filters.push(this.getCompanyFilter(companyId));
 
     const body = {

@@ -311,14 +311,14 @@
             </div>
           </div>
           <div class="metric-card">
-            <div class="metric-value">{{overview.errorRate}}%</div>
+            <div class="metric-value">{{overview.errorRate}}</div>
             <div class="metric-label">Taxa de Erro</div>
             <div class="metric-change {{overview.errorTrend}}">
               {{overview.errorChange}}
             </div>
           </div>
           <div class="metric-card">
-            <div class="metric-value">{{overview.availability}}%</div>
+            <div class="metric-value">{{overview.availability}}</div>
             <div class="metric-label">Disponibilidade</div>
             <div class="metric-change {{overview.availabilityTrend}}">
               {{overview.availabilityChange}}
@@ -438,7 +438,7 @@
       </div>
 
       <!-- 3. Falhas e Erros Críticos -->
-      <div class="section">
+      <!-- <div class="section">
         <h3 class="section-title">3. Falhas e Erros Críticos</h3>
         <div class="cards-grid" style="grid-template-columns: repeat(4, 1fr)">
           <div class="metric-card">
@@ -471,6 +471,59 @@
           <div class="error-details">Último: {{this.lastOccurrence}}</div>
         </div>
         {{/each}}
+      </div> -->
+
+      <!-- 3. Uso por Usuário -->
+      <div class="section">
+        <h3 class="section-title">6. Análise de Uso</h3>
+        <div class="two-columns">
+          <div>
+            <h4 style="font-size: 11px; margin-bottom: 8px">
+              Top Usuários por Volume
+            </h4>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Usuário/Sistema</th>
+                  <th>Requisições</th>
+                  <th>% do Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{#each usage.topUsers}}
+                <tr>
+                  <td>{{this.user}}</td>
+                  <td>{{this.requests}}</td>
+                  <td>{{this.percentage}}</td>
+                </tr>
+                {{/each}}
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <h4 style="font-size: 11px; margin-bottom: 8px">
+              Acessos Suspeitos
+            </h4>
+            {{#each usage.suspiciousActivity}}
+            <div
+              style="
+                background: #fef2f2;
+                border-left: 3px solid #ef4444;
+                padding: 8px;
+                margin-bottom: 6px;
+              "
+            >
+              <div style="font-weight: 600; font-size: 10px; color: #991b1b">
+                {{this.type}}
+              </div>
+              <div style="font-size: 9px; color: #6b7280">{{this.details}}</div>
+              <div style="font-size: 8px; color: #9ca3af">
+                {{this.timestamp}}
+              </div>
+            </div>
+            {{/each}}
+          </div>
+        </div>
       </div>
 
       <!-- 4. Saúde por Serviço -->
@@ -498,7 +551,7 @@
               </td>
               <td>{{this.avgLatency}}ms</td>
               <td>{{this.volume}}</td>
-              <td>{{this.errorRate}}%</td>
+              <td>{{this.errorRate}}</td>
               <td>{{this.changes}}</td>
             </tr>
             {{/each}}
@@ -507,7 +560,7 @@
       </div>
 
       <!-- 5. Análise de Tendências -->
-      <div class="section">
+      <!-- <div class="section">
         <h3 class="section-title">5. Análise de Tendências e Anomalias</h3>
         <div class="chart-placeholder">
           [Gráfico de Tendências - Latência e Volume ao longo da semana]
@@ -563,63 +616,10 @@
             {{/each}}
           </div>
         </div>
-      </div>
-
-      <!-- 6. Uso por Usuário -->
-      <div class="section">
-        <h3 class="section-title">6. Análise de Uso</h3>
-        <div class="two-columns">
-          <div>
-            <h4 style="font-size: 11px; margin-bottom: 8px">
-              Top Usuários por Volume
-            </h4>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Usuário/Sistema</th>
-                  <th>Requisições</th>
-                  <th>% do Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {{#each usage.topUsers}}
-                <tr>
-                  <td>{{this.user}}</td>
-                  <td>{{this.requests}}</td>
-                  <td>{{this.percentage}}%</td>
-                </tr>
-                {{/each}}
-              </tbody>
-            </table>
-          </div>
-          <div>
-            <h4 style="font-size: 11px; margin-bottom: 8px">
-              Acessos Suspeitos
-            </h4>
-            {{#each usage.suspiciousActivity}}
-            <div
-              style="
-                background: #fef2f2;
-                border-left: 3px solid #ef4444;
-                padding: 8px;
-                margin-bottom: 6px;
-              "
-            >
-              <div style="font-weight: 600; font-size: 10px; color: #991b1b">
-                {{this.type}}
-              </div>
-              <div style="font-size: 9px; color: #6b7280">{{this.details}}</div>
-              <div style="font-size: 8px; color: #9ca3af">
-                {{this.timestamp}}
-              </div>
-            </div>
-            {{/each}}
-          </div>
-        </div>
-      </div>
+      </div>      -->
 
       <!-- 7. Comparativo com Semana Anterior -->
-      <div class="section">
+      <!-- <div class="section">
         <h3 class="section-title">7. Comparativo Semanal</h3>
         <div class="cards-grid">
           <div class="metric-card">
@@ -651,10 +651,10 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <!-- Observações e Recomendações -->
-      <div class="section">
+      <!-- <div class="section">
         <h3 class="section-title">Observações e Recomendações</h3>
         <div
           style="
@@ -671,7 +671,7 @@
           </div>
           {{/each}}
         </div>
-      </div>
+      </div> -->
     </div>
 
     <div class="footer">

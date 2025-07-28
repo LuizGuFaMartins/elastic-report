@@ -10,8 +10,9 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { DayjsService } from './services/commom/dayjs.service';
 import { ElasticReportService } from './services/elastic/elastic-report.service';
 import { OverviewParser } from './services/elastic/parsers/overview-parser.service';
-import { EndpointsParser } from './services/elastic/parsers/top-latency-endpoint-parser.service';
+import { EndpointsParser } from './services/elastic/parsers/endpoints-parser.service';
 import { ElasticQueryService } from './services/elastic/elastic-query.service';
+import { ServicesHealthParser } from './services/elastic/parsers/services-health-parser.service';
 
 @Module({
   controllers: [AppController],
@@ -38,6 +39,7 @@ import { ElasticQueryService } from './services/elastic/elastic-query.service';
     DayjsService,
     OverviewParser,
     EndpointsParser,
+    ServicesHealthParser,
   ],
 })
 export class AppModule {}
