@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ElasticHttpService } from './elastic-http.service';
 import { DayjsService } from '../commom/dayjs.service';
+import { OverviewParser } from './parsers/overview-parser.service';
 
 @Injectable()
 export class ElasticService {
@@ -9,6 +10,7 @@ export class ElasticService {
   constructor(
     private readonly http: ElasticHttpService,
     private readonly dayjsService: DayjsService,
+    private readonly overviewParser: OverviewParser,
   ) {
     this.dayjs = this.dayjsService.getInstance();
   }
@@ -22,6 +24,8 @@ export class ElasticService {
       endISO: end.toISOString(),
       startMillis: start.valueOf(),
       endMillis: end.valueOf(),
+      formatedStartISO: start.format('DD/MM/YYYY'),
+      formatedEndISO: end.format('DD/MM/YYYY'),
       tz,
     };
   }
@@ -35,12 +39,24 @@ export class ElasticService {
       endISO: end.toISOString(),
       startMillis: start.valueOf(),
       endMillis: end.valueOf(),
+      formatedStartISO: start.format('DD/MM/YYYY'),
+      formatedEndISO: end.format('DD/MM/YYYY'),
       tz,
     };
   }
 
-  private getDateRangeFilter(field: string = 'dateTime', timeData?: any) {
-    const time = timeData || this.getTimeData();
+  private getDateRangeFilter(
+    period?: 'week' | 'lastWeek',
+    field: string = 'dateTime',
+    timeData?: any,
+  ) {
+    if (!period) period = 'week';
+
+    const time: any =
+      timeData || period === 'lastWeek'
+        ? this.getPreviousWeekTimeData()
+        : this.getTimeData();
+
     return {
       range: {
         [field]: {
@@ -102,8 +118,12 @@ export class ElasticService {
   }
 
   // 1. Visão Geral da Performance
-  async getOverviewMetrics(serviceName?: string, companyId?: string) {
-    const filters = [this.getDateRangeFilter()];
+  async getOverviewMetrics(
+    serviceName?: string,
+    companyId?: string,
+    period: 'week' | 'lastWeek' = 'week',
+  ) {
+    const filters = [this.getDateRangeFilter(period)];
     if (serviceName) filters.push(this.getServiceFilter(serviceName));
     if (companyId) filters.push(this.getCompanyFilter(companyId));
 
@@ -124,7 +144,7 @@ export class ElasticService {
         // Total de requisições
         total_requests: {
           value_count: {
-            field: 'requestId.keyword',
+            field: 'requestId',
           },
         },
         // Taxa de erro (statusCode >= 400)
@@ -188,8 +208,9 @@ export class ElasticService {
     serviceName?: string,
     companyId?: string,
     size: number = 5,
+    period: 'week' | 'lastWeek' = 'week',
   ) {
-    const filters = [this.getDateRangeFilter()];
+    const filters = [this.getDateRangeFilter(period)];
     if (serviceName) filters.push(this.getServiceFilter(serviceName));
     if (companyId) filters.push(this.getCompanyFilter(companyId));
 
@@ -203,7 +224,7 @@ export class ElasticService {
       aggs: {
         by_endpoint: {
           terms: {
-            field: 'urlPath.keyword',
+            field: 'urlPath',
             size,
             order: { avg_response_time: 'desc' },
           },
@@ -215,12 +236,12 @@ export class ElasticService {
             },
             total_requests: {
               value_count: {
-                field: 'requestId.keyword',
+                field: 'requestId',
               },
             },
             by_method: {
               terms: {
-                field: 'method.keyword',
+                field: 'method',
                 size: 5,
               },
             },
@@ -237,8 +258,9 @@ export class ElasticService {
     serviceName?: string,
     companyId?: string,
     size: number = 5,
+    period: 'week' | 'lastWeek' = 'week',
   ) {
-    const filters = [this.getDateRangeFilter()];
+    const filters = [this.getDateRangeFilter(period)];
     if (serviceName) filters.push(this.getServiceFilter(serviceName));
     if (companyId) filters.push(this.getCompanyFilter(companyId));
 
@@ -252,13 +274,13 @@ export class ElasticService {
       aggs: {
         by_endpoint: {
           terms: {
-            field: 'urlPath.keyword',
+            field: 'urlPath',
             size: 20, // Pegar mais para calcular taxa de erro
           },
           aggs: {
             total_requests: {
               value_count: {
-                field: 'requestId.keyword',
+                field: 'requestId',
               },
             },
             error_requests: {
@@ -307,17 +329,21 @@ export class ElasticService {
   }
 
   // 4. Análise de Erros Detalhada
-  async getErrorAnalysis(serviceName?: string, companyId?: string) {
-    const filters = [
-      this.getDateRangeFilter(),
-      {
-        range: {
-          statusCode: {
-            gte: 400,
-          },
+  async getErrorAnalysis(
+    serviceName?: string,
+    companyId?: string,
+    period: 'week' | 'lastWeek' = 'week',
+  ) {
+    const filters: any = [this.getDateRangeFilter(period)];
+
+    filters.push({
+      range: {
+        statusCode: {
+          gte: 400,
         },
       },
-    ];
+    });
+
     if (serviceName) filters.push(this.getServiceFilter(serviceName));
     if (companyId) filters.push(this.getCompanyFilter(companyId));
 
@@ -338,7 +364,7 @@ export class ElasticService {
           aggs: {
             by_endpoint: {
               terms: {
-                field: 'urlPath.keyword',
+                field: 'urlPath',
                 size: 5,
               },
             },
@@ -369,7 +395,7 @@ export class ElasticService {
         // Endpoints com falha consistente
         consistent_failures: {
           terms: {
-            field: 'urlPath.keyword',
+            field: 'urlPath',
             size: 10,
             min_doc_count: 10, // Pelo menos 10 erros
           },
@@ -445,7 +471,7 @@ export class ElasticService {
               aggs: {
                 endpoints: {
                   terms: {
-                    field: 'urlPath.keyword',
+                    field: 'urlPath',
                     size: 5,
                   },
                 },
@@ -460,8 +486,17 @@ export class ElasticService {
   }
 
   // 5. Saúde por Serviço
-  async getServiceHealth(companyId?: string) {
-    const filters = [this.getDateRangeFilter()];
+  async getServiceHealth(
+    serviceName?: string,
+    companyId?: string,
+    period: 'week' | 'lastWeek' = 'week',
+  ) {
+    const filters =
+      period === 'lastWeek'
+        ? [this.getPreviousWeekTimeData()]
+        : [this.getDateRangeFilter()];
+
+    if (serviceName) filters.push(this.getServiceFilter(serviceName));
     if (companyId) filters.push(this.getCompanyFilter(companyId));
 
     const body = {
@@ -474,7 +509,7 @@ export class ElasticService {
       aggs: {
         by_service: {
           terms: {
-            field: 'software.keyword',
+            field: 'software',
             size: 20,
           },
           aggs: {
@@ -487,7 +522,7 @@ export class ElasticService {
             // Volume de requisições
             request_count: {
               value_count: {
-                field: 'requestId.keyword',
+                field: 'requestId',
               },
             },
             // Taxa de erro
@@ -551,8 +586,12 @@ export class ElasticService {
   }
 
   // 6. Análise de Anomalias e Tendências
-  async getTrendAnalysis(serviceName?: string, companyId?: string) {
-    const filters = [this.getDateRangeFilter()];
+  async getTrendAnalysis(
+    serviceName?: string,
+    companyId?: string,
+    period: 'week' | 'lastWeek' = 'week',
+  ) {
+    const filters = [this.getDateRangeFilter(period)];
     if (serviceName) filters.push(this.getServiceFilter(serviceName));
     if (companyId) filters.push(this.getCompanyFilter(companyId));
 
@@ -600,7 +639,7 @@ export class ElasticService {
           aggs: {
             total_requests: {
               value_count: {
-                field: 'requestId.keyword',
+                field: 'requestId',
               },
             },
             error_count: {
@@ -634,12 +673,12 @@ export class ElasticService {
           aggs: {
             request_count: {
               value_count: {
-                field: 'requestId.keyword',
+                field: 'requestId',
               },
             },
             unique_users: {
               cardinality: {
-                field: 'userEmail.keyword',
+                field: 'userEmail',
               },
             },
           },
@@ -656,7 +695,7 @@ export class ElasticService {
           aggs: {
             by_endpoint: {
               terms: {
-                field: 'urlPath.keyword',
+                field: 'urlPath',
                 size: 10,
               },
               aggs: {
@@ -683,8 +722,13 @@ export class ElasticService {
   }
 
   // 7. Top Usuários e Atividade Suspeita
-  async getUserAnalysis(companyId?: string) {
-    const filters = [this.getDateRangeFilter()];
+  async getUserAnalysis(
+    serviceName?: string,
+    companyId?: string,
+    period: 'week' | 'lastWeek' = 'week',
+  ) {
+    const filters = [this.getDateRangeFilter(period)];
+    if (serviceName) filters.push(this.getServiceFilter(serviceName));
     if (companyId) filters.push(this.getCompanyFilter(companyId));
 
     const body = {
@@ -698,25 +742,25 @@ export class ElasticService {
         // Top usuários por volume
         top_users: {
           terms: {
-            field: 'userEmail.keyword',
+            field: 'userEmail',
             size: 10,
             order: { _count: 'desc' },
           },
           aggs: {
             total_requests: {
               value_count: {
-                field: 'requestId.keyword',
+                field: 'requestId',
               },
             },
             methods_used: {
               terms: {
-                field: 'method.keyword',
+                field: 'method',
                 size: 5,
               },
             },
             unique_ips: {
               cardinality: {
-                field: 'remoteIpAddress.keyword',
+                field: 'remoteIpAddress',
               },
             },
             avg_response_time: {
@@ -747,7 +791,7 @@ export class ElasticService {
           aggs: {
             users: {
               terms: {
-                field: 'userEmail.keyword',
+                field: 'userEmail',
                 size: 10,
               },
               aggs: {
@@ -759,7 +803,7 @@ export class ElasticService {
                 },
                 most_failed_endpoints: {
                   terms: {
-                    field: 'urlPath.keyword',
+                    field: 'urlPath',
                     size: 5,
                   },
                 },
@@ -770,14 +814,14 @@ export class ElasticService {
         // IPs suspeitos (muitas requisições)
         suspicious_ips: {
           terms: {
-            field: 'remoteIpAddress.keyword',
+            field: 'remoteIpAddress',
             size: 10,
             min_doc_count: 1000, // IPs com mais de 1000 requisições
           },
           aggs: {
             unique_users: {
               cardinality: {
-                field: 'userEmail.keyword',
+                field: 'userEmail',
               },
             },
             request_pattern: {
@@ -805,7 +849,7 @@ export class ElasticService {
             },
             top_endpoints: {
               terms: {
-                field: 'urlPath.keyword',
+                field: 'urlPath',
                 size: 5,
               },
             },
@@ -826,7 +870,7 @@ export class ElasticService {
           aggs: {
             by_user: {
               terms: {
-                field: 'userEmail.keyword',
+                field: 'userEmail',
                 size: 10,
               },
               aggs: {
@@ -846,11 +890,11 @@ export class ElasticService {
           filter: {
             bool: {
               should: [
-                { wildcard: { 'urlPath.keyword': '*admin*' } },
-                { wildcard: { 'urlPath.keyword': '*password*' } },
-                { wildcard: { 'urlPath.keyword': '*auth*' } },
-                { wildcard: { 'urlPath.keyword': '*login*' } },
-                { wildcard: { 'urlPath.keyword': '*user*' } },
+                { wildcard: { urlPath: '*admin*' } },
+                { wildcard: { urlPath: '*password*' } },
+                { wildcard: { urlPath: '*auth*' } },
+                { wildcard: { urlPath: '*login*' } },
+                { wildcard: { urlPath: '*user*' } },
               ],
               minimum_should_match: 1,
             },
@@ -858,13 +902,13 @@ export class ElasticService {
           aggs: {
             by_user: {
               terms: {
-                field: 'userEmail.keyword',
+                field: 'userEmail',
                 size: 10,
               },
               aggs: {
                 endpoints_accessed: {
                   terms: {
-                    field: 'urlPath.keyword',
+                    field: 'urlPath',
                     size: 10,
                   },
                 },
@@ -940,7 +984,7 @@ export class ElasticService {
             },
             total_requests: {
               value_count: {
-                field: 'requestId.keyword',
+                field: 'requestId',
               },
             },
             error_rate: {
@@ -961,12 +1005,12 @@ export class ElasticService {
             },
             unique_users: {
               cardinality: {
-                field: 'userEmail.keyword',
+                field: 'userEmail',
               },
             },
             unique_endpoints: {
               cardinality: {
-                field: 'urlPath.keyword',
+                field: 'urlPath',
               },
             },
           },
@@ -988,7 +1032,7 @@ export class ElasticService {
             },
             total_requests: {
               value_count: {
-                field: 'requestId.keyword',
+                field: 'requestId',
               },
             },
             error_rate: {
@@ -1009,12 +1053,12 @@ export class ElasticService {
             },
             unique_users: {
               cardinality: {
-                field: 'userEmail.keyword',
+                field: 'userEmail',
               },
             },
             unique_endpoints: {
               cardinality: {
-                field: 'urlPath.keyword',
+                field: 'urlPath',
               },
             },
           },
@@ -1049,17 +1093,52 @@ export class ElasticService {
       // ]);
 
       const overview = await this.getOverviewMetrics(serviceName, companyId);
-      const topLatencyEndpoints = await this.getTopEndpointsByLatency(
+      // const topLatencyEndpoints = await this.getTopEndpointsByLatency(
+      //   serviceName,
+      //   companyId,
+      // );
+      // const topErrorEndpoints = await this.getTopEndpointsByErrors(
+      //   serviceName,
+      //   companyId,
+      // );
+      // const errorAnalysis = await this.getErrorAnalysis(serviceName, companyId);
+      // const serviceHealth = await this.getServiceHealth(serviceName, companyId);
+      // const trendAnalysis = await this.getTrendAnalysis(serviceName, companyId);
+
+      // Last week
+      const lastWeekOverview = await this.getOverviewMetrics(
         serviceName,
         companyId,
+        'lastWeek',
       );
-      const topErrorEndpoints = await this.getTopEndpointsByErrors(
-        serviceName,
-        companyId,
-      );
-      const errorAnalysis = await this.getErrorAnalysis(serviceName, companyId);
-      const serviceHealth = await this.getServiceHealth(companyId);
-      const trendAnalysis = await this.getTrendAnalysis(serviceName, companyId);
+      // const lastWeekTopLatencyEndpoints = await this.getTopEndpointsByLatency(
+      //   serviceName,
+      //   companyId,
+      //   5,
+      //   'lastWeek',
+      // );
+      // const lastWeekTopErrorEndpoints = await this.getTopEndpointsByErrors(
+      //   serviceName,
+      //   companyId,
+      //   5,
+      //   'lastWeek',
+      // );
+      // const lastWeekTrrorAnalysis = await this.getErrorAnalysis(
+      //   serviceName,
+      //   companyId,
+      //   'lastWeek',
+      // );
+      // const lastWeekServiceHealth = await this.getServiceHealth(
+      //   serviceName,
+      //   companyId,
+      //   'lastWeek',
+      // );
+      // const lastWeekTrendAnalysis = await this.getTrendAnalysis(
+      //   serviceName,
+      //   companyId,
+      //   'lastWeek',
+      // );
+
       // const userAnalysis = await this.getUserAnalysis(companyId);
       // const weeklyComparison = await this.getWeeklyComparison(
       //   serviceName,
@@ -1067,20 +1146,20 @@ export class ElasticService {
       // );
 
       const data = {
-        overview,
-        topLatencyEndpoints,
-        topErrorEndpoints,
-        errorAnalysis,
-        serviceHealth,
-        trendAnalysis,
-        // userAnalysis,
-        // weeklyComparison,
+        overview: this.overviewParser.parse(overview, lastWeekOverview),
+        // topLatencyEndpoints,
+        // topErrorEndpoints,
+        // errorAnalysis,
+        // serviceHealth,
+        // trendAnalysis,
         generatedAt: new Date().toISOString(),
         period: this.getTimeData(),
         filters: {
           serviceName,
           companyId,
         },
+        // userAnalysis,
+        // weeklyComparison,
       };
 
       return data;

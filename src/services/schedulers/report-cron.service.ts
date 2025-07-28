@@ -9,6 +9,7 @@ import { reportMock } from 'src/shared/mocks/report-mock';
 
 import { DayjsService } from 'src/services/commom/dayjs.service';
 import { ElasticService } from 'src/services/elastic/elastic.service';
+import { QualiexServices } from 'src/shared/enums/qualiex-services.enum';
 
 @Injectable()
 export class ReportCronService {
@@ -28,11 +29,11 @@ export class ReportCronService {
   async handleWeeklyReport() {
     this.logger.debug('Iniciando geração de relatório...');
 
-    const serviceName = 'QualiexDecisions'; // Audit_API
+    const serviceName = QualiexServices.QualiexAudit; // Audit_API
     const pdfReport: { name: string; buffer: any } =
       await this.generateReportBufferByService(serviceName);
 
-    // await this.saveReportAsFile(pdfReport);
+    await this.saveReportAsFile(pdfReport);
     // await this.sendReportEmail(pdfReport)
 
     this.logger.debug('Finalizando geração de relatório...');
@@ -42,12 +43,30 @@ export class ReportCronService {
     service: string,
   ): Promise<{ name: string; buffer: any }> {
     const data = await this.elasticService.generateHealthReportData(service);
+
     console.log('data: ', data);
 
     const MOCK = reportMock; // remover
-    const pdfBuffer = await this.pdfService.generateReport(MOCK);
 
     const generationDate = this.dayjs().format('DD-MM-YYYY');
+
+    const logoFile = fs.readFileSync(
+      'C:/projetos/telemetria/src/assets/forlogic-logo.png',
+    );
+    const logoBase64 = logoFile.toString('base64');
+    const logoDataUri = `data:image/png;base64,${logoBase64}`;
+
+    const pdfBuffer = await this.pdfService.generateReport({
+      companyName: 'ForLogic',
+      companySubtitle: 'Serviço analisado: ' + QualiexServices.QualiexAudit,
+      companyInitials: 'FL',
+      companyLogo: logoDataUri,
+      reportPeriod:
+        data.period.formatedStartISO + ' - ' + data.period.formatedEndISO,
+      generatedDate: generationDate.replace('-', '/'),
+      ...data,
+    });
+
     const fileName = `./relatorio-${service?.trim().toLocaleLowerCase()}-${generationDate}.pdf`;
 
     return {
