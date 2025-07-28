@@ -5,19 +5,17 @@ import { OverviewParser } from './parsers/overview-parser.service';
 import { EndpointsParser } from './parsers/top-latency-endpoint-parser.service';
 
 @Injectable()
-export class ElasticService {
+export class ElasticQueryService {
   private dayjs: any;
 
   constructor(
     private readonly http: ElasticHttpService,
     private readonly dayjsService: DayjsService,
-    private readonly overviewParser: OverviewParser,
-    private readonly endpointsParser: EndpointsParser,
   ) {
     this.dayjs = this.dayjsService.getInstance();
   }
 
-  private getTimeData() {
+  public getTimeData() {
     const tz = process.env.ELASTIC_TIMEZONE;
     const end = this.dayjs().tz(tz);
     const start = end.subtract(7, 'day');
@@ -32,7 +30,7 @@ export class ElasticService {
     };
   }
 
-  private getPreviousWeekTimeData() {
+  public getPreviousWeekTimeData() {
     const tz = process.env.ELASTIC_TIMEZONE;
     const end = this.dayjs().tz(tz).subtract(7, 'day');
     const start = end.subtract(7, 'day');
@@ -47,7 +45,7 @@ export class ElasticService {
     };
   }
 
-  private getDateRangeFilter(
+  public getDateRangeFilter(
     period?: 'week' | 'lastWeek',
     field: string = 'dateTime',
     timeData?: any,
@@ -226,7 +224,7 @@ export class ElasticService {
       aggs: {
         by_endpoint: {
           terms: {
-            field: 'urlPath',
+            field: 'urlPath.keyword',
             size,
             order: { avg_response_time: 'desc' },
           },
@@ -238,12 +236,12 @@ export class ElasticService {
             },
             total_requests: {
               value_count: {
-                field: 'requestId',
+                field: 'requestId.keyword',
               },
             },
             by_method: {
               terms: {
-                field: 'method',
+                field: 'method.keyword',
                 size: 5,
               },
             },
@@ -275,49 +273,40 @@ export class ElasticService {
       },
       aggs: {
         by_endpoint: {
-          terms: {
-            field: 'urlPath',
-            size: 20, // Pegar mais para calcular taxa de erro
+          filters: {
+            filters: {
+              notStatusCode200: {
+                bool: {
+                  must_not: [
+                    {
+                      term: {
+                        statusCode: {
+                          value: '200',
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
           },
           aggs: {
-            total_requests: {
-              value_count: {
-                field: 'requestId',
-              },
-            },
-            error_requests: {
-              filter: {
-                range: {
-                  statusCode: {
-                    gte: 400,
-                  },
-                },
-              },
-            },
-            error_rate: {
-              bucket_script: {
-                buckets_path: {
-                  errors: 'error_requests>_count',
-                  total: 'total_requests',
-                },
-                script:
-                  'params.total > 0 ? (params.errors / params.total) * 100 : 0',
-              },
-            },
-            // Detalhes dos erros mais comuns
-            error_breakdown: {
-              filter: {
-                range: {
-                  statusCode: {
-                    gte: 400,
-                  },
+            endpoint: {
+              terms: {
+                field: 'urlPath.keyword',
+                size,
+                order: {
+                  _count: 'desc',
                 },
               },
               aggs: {
                 by_status: {
                   terms: {
                     field: 'statusCode',
-                    size: 10,
+                    size: 5,
+                    order: {
+                      _count: 'desc',
+                    },
                   },
                 },
               },
@@ -1069,112 +1058,5 @@ export class ElasticService {
     };
 
     return await this.http.post(`/${process.env.ELASTIC_INDEX}/_search`, body);
-  }
-
-  // Método principal para gerar dados do relatório
-  async generateHealthReportData(serviceName?: string, companyId?: string) {
-    try {
-      // const [
-      //   overview,
-      //   topLatencyEndpoints,
-      //   topErrorEndpoints,
-      //   errorAnalysis,
-      //   serviceHealth,
-      //   trendAnalysis,
-      //   userAnalysis,
-      //   weeklyComparison,
-      // ] = await Promise.all([
-      //   this.getOverviewMetrics(serviceName, companyId),
-      //   this.getTopEndpointsByLatency(serviceName, companyId),
-      //   this.getTopEndpointsByErrors(serviceName, companyId),
-      //   this.getErrorAnalysis(serviceName, companyId),
-      //   this.getServiceHealth(companyId),
-      //   this.getTrendAnalysis(serviceName, companyId),
-      //   this.getUserAnalysis(companyId),
-      //   this.getWeeklyComparison(serviceName, companyId),
-      // ]);
-
-      const overview = await this.getOverviewMetrics(serviceName, companyId);
-      const topLatencyEndpoints = await this.getTopEndpointsByLatency(
-        serviceName,
-        companyId,
-      );
-      const topErrorEndpoints = await this.getTopEndpointsByErrors(
-        serviceName,
-        companyId,
-      );
-      // const errorAnalysis = await this.getErrorAnalysis(serviceName, companyId);
-      // const serviceHealth = await this.getServiceHealth(serviceName, companyId);
-      // const trendAnalysis = await this.getTrendAnalysis(serviceName, companyId);
-
-      // Last week
-      const lastWeekOverview = await this.getOverviewMetrics(
-        serviceName,
-        companyId,
-        'lastWeek',
-      );
-      const lastWeekTopLatencyEndpoints = await this.getTopEndpointsByLatency(
-        serviceName,
-        companyId,
-        5,
-        'lastWeek',
-      );
-      const lastWeekTopErrorEndpoints = await this.getTopEndpointsByErrors(
-        serviceName,
-        companyId,
-        5,
-        'lastWeek',
-      );
-      // const lastWeekTrrorAnalysis = await this.getErrorAnalysis(
-      //   serviceName,
-      //   companyId,
-      //   'lastWeek',
-      // );
-      // const lastWeekServiceHealth = await this.getServiceHealth(
-      //   serviceName,
-      //   companyId,
-      //   'lastWeek',
-      // );
-      // const lastWeekTrendAnalysis = await this.getTrendAnalysis(
-      //   serviceName,
-      //   companyId,
-      //   'lastWeek',
-      // );
-
-      // const userAnalysis = await this.getUserAnalysis(companyId);
-      // const weeklyComparison = await this.getWeeklyComparison(
-      //   serviceName,
-      //   companyId,
-      // );
-
-      const data = {
-        overview: this.overviewParser.parse(overview, lastWeekOverview),
-        endpoints: this.endpointsParser.parse({
-          highestLatency: topLatencyEndpoints,
-          highestErrors: topErrorEndpoints,
-        }),
-        lastWeekEndpoints: this.endpointsParser.parse({
-          highestLatency: lastWeekTopLatencyEndpoints,
-          highestErrors: lastWeekTopErrorEndpoints,
-        }),
-        // topLatencyEndpoints,
-        // topErrorEndpoints,
-        // errorAnalysis,
-        // serviceHealth,
-        // trendAnalysis,
-        generatedAt: new Date().toISOString(),
-        period: this.getTimeData(),
-        filters: {
-          serviceName,
-          companyId,
-        },
-        // userAnalysis,
-        // weeklyComparison,
-      };
-
-      return data;
-    } catch (error) {
-      throw new Error(`Erro ao gerar dados do relatório: ${error.message}`);
-    }
   }
 }

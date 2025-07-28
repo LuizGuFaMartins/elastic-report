@@ -355,7 +355,7 @@
                 {{#each endpoints.highestLatency}}
                 <tr>
                   <td>{{this.name}}</td>
-                  <td>{{this.latency}}ms</td>
+                  <td>{{this.latency}}</td>
                   <td>{{this.volume}}</td>
                 </tr>
                 {{/each}}
@@ -370,7 +370,7 @@
               <thead>
                 <tr>
                   <th>Endpoint</th>
-                  <th>Taxa Erro</th>
+                  <th>Código</th>
                   <th>Total</th>
                 </tr>
               </thead>
@@ -378,7 +378,7 @@
                 {{#each endpoints.highestErrors}}
                 <tr>
                   <td>{{this.name}}</td>
-                  <td>{{this.errorRate}}%</td>
+                  <td>{{this.statusCode}}</td>
                   <td>{{this.totalErrors}}</td>
                 </tr>
                 {{/each}}
@@ -404,7 +404,7 @@
                 {{#each lastWeekEndpoints.highestLatency}}
                 <tr>
                   <td>{{this.name}}</td>
-                  <td>{{this.latency}}ms</td>
+                  <td>{{this.latency}}</td>
                   <td>{{this.volume}}</td>
                 </tr>
                 {{/each}}
@@ -419,7 +419,7 @@
               <thead>
                 <tr>
                   <th>Endpoint</th>
-                  <th>Taxa Erro</th>
+                  <th>Código</th>
                   <th>Total</th>
                 </tr>
               </thead>
@@ -427,7 +427,7 @@
                 {{#each lastWeekEndpoints.highestErrors}}
                 <tr>
                   <td>{{this.name}}</td>
-                  <td>{{this.errorRate}}%</td>
+                  <td>{{this.statusCode}}</td>
                   <td>{{this.totalErrors}}</td>
                 </tr>
                 {{/each}}

@@ -8,17 +8,18 @@ import { MailService } from 'src/services/mail/mail.service';
 import { reportMock } from 'src/shared/mocks/report-mock';
 
 import { DayjsService } from 'src/services/commom/dayjs.service';
-import { ElasticService } from 'src/services/elastic/elastic.service';
 import { QualiexServices } from 'src/shared/enums/qualiex-services.enum';
+import { ElasticReportService } from '../elastic/elastic-report.service';
 
 @Injectable()
 export class ReportCronService {
   private readonly logger = new Logger(ReportCronService.name);
+  private reportService = QualiexServices.QualiexAudit;
   private dayjs: any;
 
   constructor(
     private readonly pdfService: PdfService,
-    private readonly elasticService: ElasticService,
+    private readonly elasticReportService: ElasticReportService,
     private readonly mailService: MailService,
     private readonly dayjsService: DayjsService,
   ) {
@@ -29,9 +30,8 @@ export class ReportCronService {
   async handleWeeklyReport() {
     this.logger.debug('Iniciando geração de relatório...');
 
-    const serviceName = QualiexServices.QualiexAudit; // Audit_API
     const pdfReport: { name: string; buffer: any } =
-      await this.generateReportBufferByService(serviceName);
+      await this.generateReportBufferByService(this.reportService);
 
     await this.saveReportAsFile(pdfReport);
     // await this.sendReportEmail(pdfReport)
@@ -42,25 +42,18 @@ export class ReportCronService {
   async generateReportBufferByService(
     service: string,
   ): Promise<{ name: string; buffer: any }> {
-    const data = await this.elasticService.generateHealthReportData(service);
+    const data =
+      await this.elasticReportService.generateHealthReportData(service);
 
     console.log('data: ', data);
 
-    const MOCK = reportMock; // remover
-
     const generationDate = this.dayjs();
-
-    const logoFile = fs.readFileSync(
-      'C:/projetos/telemetria/src/assets/forlogic-logo.png',
-    );
-    const logoBase64 = logoFile.toString('base64');
-    const logoDataUri = `data:image/png;base64,${logoBase64}`;
 
     const pdfBuffer = await this.pdfService.generateReport({
       companyName: 'ForLogic',
-      companySubtitle: 'Serviço analisado: ' + QualiexServices.QualiexAudit,
+      companySubtitle: 'Serviço analisado: ' + this.reportService,
       companyInitials: 'FL',
-      companyLogo: logoDataUri,
+      companyLogo: this.getLogo(),
       reportPeriod:
         data.period.formatedStartISO + ' - ' + data.period.formatedEndISO,
       generatedDate: generationDate.format('DD/MM/YYYY'),
@@ -83,5 +76,13 @@ export class ReportCronService {
 
   async saveReportAsFile(pdfReport: { name: string; buffer: any }) {
     this.pdfService.saveFile(pdfReport.name, pdfReport.buffer);
+  }
+
+  public getLogo() {
+    const logoFile = fs.readFileSync(
+      'C:/projetos/telemetria/src/assets/forlogic-logo.png',
+    );
+    const logoBase64 = logoFile.toString('base64');
+    return `data:image/png;base64,${logoBase64}`;
   }
 }

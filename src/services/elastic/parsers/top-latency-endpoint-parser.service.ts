@@ -21,12 +21,13 @@ export class EndpointsParser implements ParserService {
       return value.toString();
     };
 
-    const highestLatencyBuckets = endpoints?.highestLatency?.buckets || [];
+    const highestLatencyBuckets =
+      endpoints?.highestLatency?.aggregations?.by_endpoint?.buckets || [];
 
     // Top 5 por latência média
     const highestLatency = [...highestLatencyBuckets]
-      .filter((b) => b.avg_response_time?.value != null)
-      .sort((a, b) => b.avg_response_time.value - a.avg_response_time.value)
+      .filter((b) => b?.avg_response_time?.value != null)
+      .sort((a, b) => +b?.avg_response_time.value - +a?.avg_response_time.value)
       .slice(0, 5)
       .map((bucket) => ({
         name: bucket.key,
@@ -34,24 +35,23 @@ export class EndpointsParser implements ParserService {
         volume: formatNumber(bucket.total_requests.value || bucket.doc_count),
       }));
 
-    const highestErrorsBuckets = endpoints?.highestErrors?.buckets || [];
+    const highestErrorsBuckets =
+      endpoints?.highestErrors?.aggregations?.by_endpoint?.buckets
+        ?.notStatusCode200?.endpoint?.buckets || [];
+
     // Top 5 por taxa de erro (assumindo que você tem `errors` e `total_requests`)
-    const highestErrors = [...highestErrorsBuckets]
-      .filter(
-        (b) =>
-          b.total_requests?.value > 0 &&
-          b.errors?.value != null &&
-          b.errors?.value > 0,
-      )
-      .map((b) => {
-        const errorRate = (b.errors.value / b.total_requests.value) * 100;
-        return {
-          name: b.key,
-          errorRate: `${errorRate.toFixed(2)}%`,
-          totalErrors: formatNumber(b.errors.value),
-        };
+    const highestErrors = highestErrorsBuckets
+      .flatMap((bucket) => {
+        const url = bucket.key;
+        const statusBuckets = bucket.by_status?.buckets || [];
+
+        return statusBuckets.map((status) => ({
+          name: url,
+          statusCode: status.key,
+          totalErrors: status.doc_count,
+        }));
       })
-      .sort((a, b) => parseFloat(b.errorRate) - parseFloat(a.errorRate))
+      .sort((a, b) => +b.totalErrors - +a.totalErrors)
       .slice(0, 5);
 
     return { highestLatency, highestErrors };

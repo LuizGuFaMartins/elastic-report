@@ -8,9 +8,10 @@ import { MailService } from './services/mail/mail.service';
 import { PdfService } from './services/pdf/pdf.service';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { DayjsService } from './services/commom/dayjs.service';
-import { ElasticService } from './services/elastic/elastic.service';
+import { ElasticReportService } from './services/elastic/elastic-report.service';
 import { OverviewParser } from './services/elastic/parsers/overview-parser.service';
 import { EndpointsParser } from './services/elastic/parsers/top-latency-endpoint-parser.service';
+import { ElasticQueryService } from './services/elastic/elastic-query.service';
 
 @Module({
   controllers: [AppController],
@@ -30,7 +31,8 @@ import { EndpointsParser } from './services/elastic/parsers/top-latency-endpoint
   providers: [
     ReportCronService,
     ElasticHttpService,
-    ElasticService,
+    ElasticReportService,
+    ElasticQueryService,
     MailService,
     PdfService,
     DayjsService,
