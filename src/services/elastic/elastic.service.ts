@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ElasticHttpService } from './elastic-http.service';
 import { DayjsService } from '../commom/dayjs.service';
 import { OverviewParser } from './parsers/overview-parser.service';
+import { EndpointsParser } from './parsers/top-latency-endpoint-parser.service';
 
 @Injectable()
 export class ElasticService {
@@ -11,6 +12,7 @@ export class ElasticService {
     private readonly http: ElasticHttpService,
     private readonly dayjsService: DayjsService,
     private readonly overviewParser: OverviewParser,
+    private readonly endpointsParser: EndpointsParser,
   ) {
     this.dayjs = this.dayjsService.getInstance();
   }
@@ -1093,14 +1095,14 @@ export class ElasticService {
       // ]);
 
       const overview = await this.getOverviewMetrics(serviceName, companyId);
-      // const topLatencyEndpoints = await this.getTopEndpointsByLatency(
-      //   serviceName,
-      //   companyId,
-      // );
-      // const topErrorEndpoints = await this.getTopEndpointsByErrors(
-      //   serviceName,
-      //   companyId,
-      // );
+      const topLatencyEndpoints = await this.getTopEndpointsByLatency(
+        serviceName,
+        companyId,
+      );
+      const topErrorEndpoints = await this.getTopEndpointsByErrors(
+        serviceName,
+        companyId,
+      );
       // const errorAnalysis = await this.getErrorAnalysis(serviceName, companyId);
       // const serviceHealth = await this.getServiceHealth(serviceName, companyId);
       // const trendAnalysis = await this.getTrendAnalysis(serviceName, companyId);
@@ -1111,18 +1113,18 @@ export class ElasticService {
         companyId,
         'lastWeek',
       );
-      // const lastWeekTopLatencyEndpoints = await this.getTopEndpointsByLatency(
-      //   serviceName,
-      //   companyId,
-      //   5,
-      //   'lastWeek',
-      // );
-      // const lastWeekTopErrorEndpoints = await this.getTopEndpointsByErrors(
-      //   serviceName,
-      //   companyId,
-      //   5,
-      //   'lastWeek',
-      // );
+      const lastWeekTopLatencyEndpoints = await this.getTopEndpointsByLatency(
+        serviceName,
+        companyId,
+        5,
+        'lastWeek',
+      );
+      const lastWeekTopErrorEndpoints = await this.getTopEndpointsByErrors(
+        serviceName,
+        companyId,
+        5,
+        'lastWeek',
+      );
       // const lastWeekTrrorAnalysis = await this.getErrorAnalysis(
       //   serviceName,
       //   companyId,
@@ -1147,6 +1149,14 @@ export class ElasticService {
 
       const data = {
         overview: this.overviewParser.parse(overview, lastWeekOverview),
+        endpoints: this.endpointsParser.parse({
+          highestLatency: topLatencyEndpoints,
+          highestErrors: topErrorEndpoints,
+        }),
+        lastWeekEndpoints: this.endpointsParser.parse({
+          highestLatency: lastWeekTopLatencyEndpoints,
+          highestErrors: lastWeekTopErrorEndpoints,
+        }),
         // topLatencyEndpoints,
         // topErrorEndpoints,
         // errorAnalysis,

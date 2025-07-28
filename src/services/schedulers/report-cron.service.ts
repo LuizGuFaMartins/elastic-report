@@ -48,7 +48,7 @@ export class ReportCronService {
 
     const MOCK = reportMock; // remover
 
-    const generationDate = this.dayjs().format('DD-MM-YYYY');
+    const generationDate = this.dayjs();
 
     const logoFile = fs.readFileSync(
       'C:/projetos/telemetria/src/assets/forlogic-logo.png',
@@ -63,11 +63,11 @@ export class ReportCronService {
       companyLogo: logoDataUri,
       reportPeriod:
         data.period.formatedStartISO + ' - ' + data.period.formatedEndISO,
-      generatedDate: generationDate.replace('-', '/'),
+      generatedDate: generationDate.format('DD/MM/YYYY'),
       ...data,
     });
 
-    const fileName = `./relatorio-${service?.trim().toLocaleLowerCase()}-${generationDate}.pdf`;
+    const fileName = `./relatorio-${service?.trim().toLocaleLowerCase()}-${generationDate.format('DD-MM-YYYY')}.pdf`;
 
     return {
       name: fileName,

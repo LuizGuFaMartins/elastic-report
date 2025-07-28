@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { ParserService } from './parser.interface';
 
 @Injectable()
-export class TopLatencyEndpointParser implements ParserService {
-  parse(agg: any): {
+export class EndpointsParser implements ParserService {
+  parse(endpoints: { highestLatency: any; highestErrors: any }): {
     highestLatency: {
       name: string;
       latency: string;
@@ -21,10 +21,10 @@ export class TopLatencyEndpointParser implements ParserService {
       return value.toString();
     };
 
-    const buckets = agg?.buckets || [];
+    const highestLatencyBuckets = endpoints?.highestLatency?.buckets || [];
 
     // Top 5 por latência média
-    const highestLatency = [...buckets]
+    const highestLatency = [...highestLatencyBuckets]
       .filter((b) => b.avg_response_time?.value != null)
       .sort((a, b) => b.avg_response_time.value - a.avg_response_time.value)
       .slice(0, 5)
@@ -34,8 +34,9 @@ export class TopLatencyEndpointParser implements ParserService {
         volume: formatNumber(bucket.total_requests.value || bucket.doc_count),
       }));
 
+    const highestErrorsBuckets = endpoints?.highestErrors?.buckets || [];
     // Top 5 por taxa de erro (assumindo que você tem `errors` e `total_requests`)
-    const highestErrors = [...buckets]
+    const highestErrors = [...highestErrorsBuckets]
       .filter(
         (b) =>
           b.total_requests?.value > 0 &&

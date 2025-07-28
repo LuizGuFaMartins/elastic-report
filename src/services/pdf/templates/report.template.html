@@ -7,7 +7,7 @@
     <style>
       @page {
         size: A4;
-        margin: 15mm;
+        margin: 8mm;
       }
 
       * {
@@ -341,7 +341,7 @@
         <div class="two-columns">
           <div>
             <h4 style="font-size: 11px; margin-bottom: 8px">
-              Top 5 - Maior Latência
+              Top 5 - Maior Latência (Semana atual)
             </h4>
             <table class="data-table">
               <thead>
@@ -364,7 +364,7 @@
           </div>
           <div>
             <h4 style="font-size: 11px; margin-bottom: 8px">
-              Top 5 - Maior Erro
+              Top 5 - Maior Erro (Semana atual)
             </h4>
             <table class="data-table">
               <thead>
@@ -376,6 +376,55 @@
               </thead>
               <tbody>
                 {{#each endpoints.highestErrors}}
+                <tr>
+                  <td>{{this.name}}</td>
+                  <td>{{this.errorRate}}%</td>
+                  <td>{{this.totalErrors}}</td>
+                </tr>
+                {{/each}}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="two-columns">
+          <div>
+            <h4 style="font-size: 11px; margin-bottom: 8px">
+              Top 5 - Maior Latência (Semana passada)
+            </h4>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Endpoint</th>
+                  <th>Latência</th>
+                  <th>Volume</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{#each lastWeekEndpoints.highestLatency}}
+                <tr>
+                  <td>{{this.name}}</td>
+                  <td>{{this.latency}}ms</td>
+                  <td>{{this.volume}}</td>
+                </tr>
+                {{/each}}
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <h4 style="font-size: 11px; margin-bottom: 8px">
+              Top 5 - Maior Erro (Semana passada)
+            </h4>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Endpoint</th>
+                  <th>Taxa Erro</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{#each lastWeekEndpoints.highestErrors}}
                 <tr>
                   <td>{{this.name}}</td>
                   <td>{{this.errorRate}}%</td>
