@@ -6,6 +6,7 @@ import { EndpointsParser } from './parsers/endpoints-parser.service';
 import { ElasticQueryService } from './elastic-query.service';
 import { ServicesHealthParser } from './parsers/services-health-parser.service';
 import { UserActivitiesParser } from './parsers/users-activities-parser.service';
+import { EstatisticsParser } from './parsers/estatistics-parser.service';
 
 @Injectable()
 export class ElasticReportService {
@@ -13,6 +14,7 @@ export class ElasticReportService {
 
   constructor(
     private readonly dayjsService: DayjsService,
+    private readonly estatisticsParser: EstatisticsParser,
     private readonly overviewParser: OverviewParser,
     private readonly endpointsParser: EndpointsParser,
     private readonly elasticQueryService: ElasticQueryService,
@@ -22,99 +24,66 @@ export class ElasticReportService {
     this.dayjs = this.dayjsService.getInstance();
   }
 
-  // Método principal para gerar dados do relatório
   async generateHealthReportData(serviceName?: string, companyId?: string) {
     try {
-      // const [
-      //   overview,
-      //   topLatencyEndpoints,
-      //   topErrorEndpoints,
-      //   errorAnalysis,
-      //   serviceHealth,
-      //   trendAnalysis,
-      //   userAnalysis,
-      //   weeklyComparison,
-      // ] = await Promise.all([
-      //   this.getOverviewMetrics(serviceName, companyId),
-      //   this.getTopEndpointsByLatency(serviceName, companyId),
-      //   this.getTopEndpointsByErrors(serviceName, companyId),
-      //   this.getErrorAnalysis(serviceName, companyId),
-      //   this.getServiceHealth(companyId),
-      //   this.getTrendAnalysis(serviceName, companyId),
-      //   this.getUserAnalysis(companyId),
-      //   this.getWeeklyComparison(serviceName, companyId),
-      // ]);
-
-      const overview = await this.elasticQueryService.getOverviewMetrics(
+      const estatistics = await this.elasticQueryService.getOverviewEstatistics(
         serviceName,
         companyId,
       );
+
       const topLatencyEndpoints =
         await this.elasticQueryService.getTopEndpointsByLatency(
           serviceName,
           companyId,
-          1000,
         );
+
       const topErrorEndpoints =
         await this.elasticQueryService.getTopEndpointsByErrors(
           serviceName,
           companyId,
-          1000,
         );
-      // const errorAnalysis = await this.getErrorAnalysis(serviceName, companyId);
-      const serviceHealth =
-        await this.elasticQueryService.getServiceHealth(companyId);
-      // const trendAnalysis = await this.getTrendAnalysis(serviceName, companyId);
 
-      // Last week
-      const lastWeekOverview =
-        await this.elasticQueryService.getOverviewMetrics(
+      const lastWeekEstatistics =
+        await this.elasticQueryService.getOverviewEstatistics(
           serviceName,
           companyId,
           'lastWeek',
         );
+
       const lastWeekTopLatencyEndpoints =
         await this.elasticQueryService.getTopEndpointsByLatency(
           serviceName,
           companyId,
-          1000,
+          5,
           'lastWeek',
         );
+
       const lastWeekTopErrorEndpoints =
         await this.elasticQueryService.getTopEndpointsByErrors(
           serviceName,
           companyId,
-          1000,
+          5,
           'lastWeek',
         );
-      // const lastWeekTrrorAnalysis =
-      //   await this.elasticQueryService.getErrorAnalysis(
-      //     serviceName,
-      //     companyId,
-      //     'lastWeek',
-      //   );
-      // const lastWeekServiceHealth = await this.getServiceHealth(
-      //   serviceName,
-      //   companyId,
-      //   'lastWeek',
-      // );
-      // const lastWeekTrendAnalysis = await this.getTrendAnalysis(
-      //   serviceName,
-      //   companyId,
-      //   'lastWeek',
-      // );
 
       const userAnalysis = await this.elasticQueryService.getUserAnalysis(
         serviceName,
         companyId,
       );
-      // const weeklyComparison = await this.getWeeklyComparison(
-      //   serviceName,
-      //   companyId,
-      // );
+
+      const serviceHealth =
+        await this.elasticQueryService.getServiceHealth(companyId);
+
+      const services = this.servicesHealthParser.parse(serviceHealth);
+
+      const errors =
+        await this.elasticQueryService.getErrorAnalysis(serviceName);
 
       const data = {
-        overview: this.overviewParser.parse(overview, lastWeekOverview),
+        estatistics: this.estatisticsParser.parse(
+          estatistics,
+          lastWeekEstatistics,
+        ),
         endpoints: this.endpointsParser.parse({
           highestLatency: topLatencyEndpoints,
           highestErrors: topErrorEndpoints,
@@ -123,20 +92,22 @@ export class ElasticReportService {
           highestLatency: lastWeekTopLatencyEndpoints,
           highestErrors: lastWeekTopErrorEndpoints,
         }),
-        // errors,
-        services: this.servicesHealthParser.parse(serviceHealth),
-        // trendAnalysis,
+        services: services.filter((s) => !s?.name?.includes(serviceName)),
+        selectedServices: services.filter((s) =>
+          s?.name?.includes(serviceName),
+        ),
+        ...this.userActivitiesParser.parse(userAnalysis),
+      };
+
+      return {
+        ...data,
         generatedAt: new Date().toISOString(),
         period: this.elasticQueryService.getTimeData(),
         filters: {
           serviceName,
           companyId,
         },
-        ...this.userActivitiesParser.parse(userAnalysis),
-        // weeklyComparison,
       };
-
-      return data;
     } catch (error) {
       throw new Error(`Erro ao gerar dados do relatório: ${error.message}`);
     }

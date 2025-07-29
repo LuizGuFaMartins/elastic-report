@@ -250,7 +250,7 @@
       /* Footer */
       .footer {
         position: fixed;
-        bottom: 10mm;
+        bottom: 1mm;
         left: 15mm;
         right: 15mm;
         text-align: center;
@@ -298,52 +298,86 @@
         </div>
       </div>
 
-      <!-- 1. Visão Geral da Performance -->
+      <!-- Visão Geral da Performance -->
       <div class="section">
-        <h3 class="section-title">1. Visão Geral da Performance</h3>
+        <h3 class="section-title">Visão Geral da Performance</h3>
         <div class="cards-grid">
           <div class="metric-card">
-            <div class="metric-value">{{overview.avgLatency}}ms</div>
+            <div class="metric-value">{{estatistics.totalRequests}}</div>
+            <div class="metric-label">Total de Requisições</div>
+            <div class="metric-change {{estatistics.requestsTrend}}">
+              {{estatistics.requestsChange}}
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">{{estatistics.totalLatency}}</div>
+            <div class="metric-label">Latência Total</div>
+            <div class="metric-change {{estatistics.latencyTrend}}">
+              {{estatistics.latencyChange}}
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">{{estatistics.avgLatency}}ms</div>
             <div class="metric-label">Latência Média</div>
-            <div class="metric-change {{overview.latencyTrend}}">
-              {{overview.latencyChange}}
+            <div class="metric-change {{estatistics.avgLatencyTrend}}">
+              {{estatistics.avgLatencyChange}}
             </div>
           </div>
           <div class="metric-card">
-            <div class="metric-value">{{overview.throughput}}</div>
-            <div class="metric-label">Throughput/min</div>
-            <div class="metric-change {{overview.throughputTrend}}">
-              {{overview.throughputChange}}
-            </div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-value">{{overview.errorRate}}</div>
-            <div class="metric-label">Taxa de Erro</div>
-            <div class="metric-change {{overview.errorTrend}}">
-              {{overview.errorChange}}
-            </div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-value">{{overview.availability}}</div>
-            <div class="metric-label">Disponibilidade</div>
-            <div class="metric-change {{overview.availabilityTrend}}">
-              {{overview.availabilityChange}}
-            </div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-value">{{overview.totalRequests}}</div>
-            <div class="metric-label">Total Requisições</div>
-            <div class="metric-change {{overview.requestsTrend}}">
-              {{overview.requestsChange}}
+            <div class="metric-value">{{estatistics.throughput}}</div>
+            <div class="metric-label">Throughput</div>
+            <div class="metric-change {{estatistics.throughputTrend}}">
+              {{estatistics.throughputChange}}
             </div>
           </div>
         </div>
-        <p><strong>Pico de Tráfego:</strong> {{overview.peakTraffic}}</p>
+
+        <div class="cards-grid">
+          <div class="metric-card">
+            <div class="metric-value">{{estatistics.totalSuccess}}</div>
+            <div class="metric-label">Requisições Bem-sucedidas</div>
+            <div class="metric-change {{estatistics.successTrend}}">
+              {{estatistics.successChange}}
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">{{estatistics.successRate}}%</div>
+            <div class="metric-label">Taxa de Sucesso</div>
+            <div class="metric-change {{estatistics.successTrend}}">
+              {{estatistics.successChange}}
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">{{estatistics.totalErrors}}</div>
+            <div class="metric-label">Total de Erros</div>
+            <div class="metric-change {{estatistics.errorTrend}}">
+              {{estatistics.errorChange}}
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">{{estatistics.errorRate}}%</div>
+            <div class="metric-label">Taxa de Erro</div>
+            <div class="metric-change {{estatistics.errorTrend}}">
+              {{estatistics.errorChange}}
+            </div>
+          </div>
+        </div>
+
+        <div class="traffic-info">
+          <p>
+            <strong>Pico de Tráfego Diário:</strong>
+            {{estatistics.peakTrafficDaily}}
+          </p>
+          <p>
+            <strong>Pico de Tráfego por Hora:</strong>
+            {{estatistics.peakTrafficHourly}}
+          </p>
+        </div>
       </div>
 
-      <!-- 2. Principais Endpoints -->
+      <!-- Principais Endpoints -->
       <div class="section">
-        <h3 class="section-title">2. Principais Endpoints / Transações</h3>
+        <h3 class="section-title">Principais Endpoints / Transações</h3>
         <div class="column">
           <h4 style="font-size: 11px; margin-bottom: 8px">
             Top 5 - Maior Latência (Semana atual)
@@ -447,9 +481,9 @@
         </div>
       </div>
 
-      <!-- 3. Falhas e Erros Críticos -->
+      <!-- Falhas e Erros Críticos -->
       <!-- <div class="section">
-        <h3 class="section-title">3. Falhas e Erros Críticos</h3>
+        <h3 class="section-title">Falhas e Erros Críticos</h3>
         <div class="cards-grid" style="grid-template-columns: repeat(4, 1fr)">
           <div class="metric-card">
             <div class="metric-value">{{errors.error5xx}}</div>
@@ -483,11 +517,11 @@
         {{/each}}
       </div> -->
 
-      <!-- 3. Uso por Usuário -->
+      <!-- Uso por Usuário -->
       <div class="section">
-        <h3 class="section-title">3. Uso por Usuário</h3>
+        <h3 class="section-title">Uso por Usuário</h3>
 
-        <div class="two-columns">
+        <div class="column">
           <div>
             <h4 style="font-size: 11px; margin-bottom: 8px">
               Top Usuários por Volume
@@ -511,9 +545,14 @@
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="column">
           <div>
             <h4 style="font-size: 11px; margin-bottom: 8px">
-              Acessos Suspeitos
+              Comportamentos Anômalos
             </h4>
             {{#each usage.suspiciousActivity}}
             <div
@@ -537,11 +576,13 @@
         </div>
       </div>
 
-      <!-- 4. Erros por Usuário -->
+      <!-- Erros por Usuário -->
       <div class="section">
-        <h3 class="section-title">4. Erros por Usuário</h3>
+        <h3 class="section-title">Erros por Usuário</h3>
+      </div>
 
-        {{#each errorUsers}}
+      {{#each errorUsers}}
+      <div class="section">
         <h4 style="font-size: 11px; margin-bottom: 4px">{{this.user}}</h4>
         <p style="font-size: 10px; margin-bottom: 4px">
           Total de Erros: {{this.totalErrors}}
@@ -580,14 +621,16 @@
             {{/each}}
           </tbody>
         </table>
-        {{/each}}
+      </div>
+      {{/each}}
+
+      <!-- Acessos a Endpoints Sensíveis -->
+      <div class="section">
+        <h3 class="section-title">Acessos a Endpoints Sensíveis</h3>
       </div>
 
-      <!-- 5. Acessos a Endpoints Sensíveis -->
+      {{#each sensitiveAccess.users}}
       <div class="section">
-        <h3 class="section-title">5. Acessos a Endpoints Sensíveis</h3>
-
-        {{#each sensitiveAccess.users}}
         <h4 style="font-size: 11px; margin-bottom: 4px">{{this.user}}</h4>
         <p style="font-size: 10px; margin-bottom: 4px">
           Total de Acessos: {{this.totalAccesses}} | Taxa de Sucesso:
@@ -610,14 +653,16 @@
             {{/each}}
           </tbody>
         </table>
-        {{/each}}
+      </div>
+      {{/each}}
+
+      <!-- IPs Suspeitos -->
+      <div class="section">
+        <h3 class="section-title">IPs Suspeitos</h3>
       </div>
 
-      <!-- 6. IPs Suspeitos -->
+      {{#each suspiciousIPs}}
       <div class="section">
-        <h3 class="section-title">6. IPs Suspeitos</h3>
-
-        {{#each suspiciousIPs}}
         <h4 style="font-size: 11px; margin-bottom: 4px">IP: {{this.ip}}</h4>
         <p style="font-size: 10px; margin-bottom: 4px">
           Requisições: {{this.totalRequests}} | Usuários Únicos:
@@ -640,213 +685,58 @@
             {{/each}}
           </tbody>
         </table>
-        {{/each}}
       </div>
+      {{/each}}
 
-      <!-- <div class="section">
-        <h3 class="section-title">4. Erros por Usuário</h3>
-
-        <div class="two-columns">
-          <div>
-            <h4 style="font-size: 11px; margin-bottom: 8px">
-              Top erros por Usuários
-            </h4>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Usuário/Sistema</th>
-                  <th>Requisições</th>
-                  <th>% do Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {{#each usage.topUsers}}
-                <tr>
-                  <td>{{this.user}}</td>
-                  <td>{{this.requests}}</td>
-                  <td>{{this.percentage}}</td>
-                </tr>
-                {{/each}}
-              </tbody>
-            </table>
-          </div>
-          <div>
-            <h4 style="font-size: 11px; margin-bottom: 8px">
-              Acessos Suspeitos
-            </h4>
-            {{#each usage.suspiciousActivity}}
-            <div
-              style="
-                background: #fef2f2;
-                border-left: 3px solid #ef4444;
-                padding: 8px;
-                margin-bottom: 6px;
-              "
-            >
-              <div style="font-weight: 600; font-size: 10px; color: #991b1b">
-                {{this.type}}
-              </div>
-              <div style="font-size: 9px; color: #6b7280">{{this.details}}</div>
-              <div style="font-size: 8px; color: #9ca3af">
-                {{this.timestamp}}
-              </div>
-            </div>
-            {{/each}}
-          </div>
-        </div>
-      </div> -->
-
-      <!-- 4. Comparação com os outros serviços -->
+      <!-- Comparação com os outros serviços -->
       <div class="section">
-        <h3 class="section-title">4. Comparação com os outros serviços</h3>
+        <h3 class="section-title">Comparação com os outros serviços</h3>
         <table class="data-table">
           <thead>
             <tr>
-              <th>Serviço</th>
-              <th>Status</th>
-              <th>Latência Média</th>
-              <th>Volume</th>
-              <th>Taxa Erro</th>
-              <th>Mudanças</th>
+              <th style="width: 200px;">Serviço</th>
+              <th style="width: 200px;">Latência Média</th>
+              <th style="width: 200px;">Volume</th>
+              <th style="width: 200px;">Taxa Erro</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each selectedServices}}
+            <tr>
+              <td>{{this.name}}</td>
+              <td>{{this.avgLatency}}</td>
+              <td>{{this.volume}}</td>
+              <td>{{this.errorRate}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 200px;">Serviço</th>
+              <th style="width: 200px;">Latência Média</th>
+              <th style="width: 200px;">Volume</th>
+              <th style="width: 200px;">Taxa Erro</th>
             </tr>
           </thead>
           <tbody>
             {{#each services}}
             <tr>
               <td>{{this.name}}</td>
-              <td>
-                <span class="status-badge status-{{this.status}}"
-                  >{{this.status}}</span
-                >
-              </td>
-              <td>{{this.avgLatency}}ms</td>
+              <td>{{this.avgLatency}}</td>
               <td>{{this.volume}}</td>
               <td>{{this.errorRate}}</td>
-              <td>{{this.changes}}</td>
             </tr>
             {{/each}}
           </tbody>
         </table>
       </div>
-
-      <!-- 5. Análise de Tendências -->
-      <!-- <div class="section">
-        <h3 class="section-title">5. Análise de Tendências e Anomalias</h3>
-        <div class="chart-placeholder">
-          [Gráfico de Tendências - Latência e Volume ao longo da semana]
-        </div>
-
-        <div class="two-columns">
-          <div>
-            <h4 style="font-size: 11px; margin-bottom: 8px">
-              Anomalias Detectadas
-            </h4>
-            {{#each trends.anomalies}}
-            <div
-              style="
-                background: #fffbeb;
-                border-left: 3px solid #f59e0b;
-                padding: 8px;
-                margin-bottom: 6px;
-              "
-            >
-              <div style="font-weight: 600; font-size: 10px; color: #92400e">
-                {{this.type}}
-              </div>
-              <div style="font-size: 9px; color: #6b7280">
-                {{this.description}}
-              </div>
-              <div style="font-size: 8px; color: #9ca3af">
-                {{this.timestamp}}
-              </div>
-            </div>
-            {{/each}}
-          </div>
-          <div>
-            <h4 style="font-size: 11px; margin-bottom: 8px">
-              Mudanças de Padrão
-            </h4>
-            {{#each trends.patterns}}
-            <div
-              style="
-                background: #f0f9ff;
-                border-left: 3px solid #0ea5e9;
-                padding: 8px;
-                margin-bottom: 6px;
-              "
-            >
-              <div style="font-weight: 600; font-size: 10px; color: #0c4a6e">
-                {{this.metric}}
-              </div>
-              <div style="font-size: 9px; color: #6b7280">{{this.change}}</div>
-              <div style="font-size: 8px; color: #9ca3af">
-                Impacto: {{this.impact}}
-              </div>
-            </div>
-            {{/each}}
-          </div>
-        </div>
-      </div>      -->
-
-      <!-- 7. Comparativo com Semana Anterior -->
-      <!-- <div class="section">
-        <h3 class="section-title">7. Comparativo Semanal</h3>
-        <div class="cards-grid">
-          <div class="metric-card">
-            <div class="metric-value">{{comparison.latencyChange}}</div>
-            <div class="metric-label">Latência</div>
-            <div class="metric-change {{comparison.latencyTrend}}">
-              vs. semana anterior
-            </div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-value">{{comparison.errorChange}}</div>
-            <div class="metric-label">Erros</div>
-            <div class="metric-change {{comparison.errorTrend}}">
-              vs. semana anterior
-            </div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-value">{{comparison.volumeChange}}</div>
-            <div class="metric-label">Volume</div>
-            <div class="metric-change {{comparison.volumeTrend}}">
-              vs. semana anterior
-            </div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-value">{{comparison.alertsTriggered}}</div>
-            <div class="metric-label">Alertas</div>
-            <div class="metric-change {{comparison.alertsTrend}}">
-              disparados
-            </div>
-          </div>
-        </div>
-      </div> -->
-
-      <!-- Observações e Recomendações -->
-      <!-- <div class="section">
-        <h3 class="section-title">Observações e Recomendações</h3>
-        <div
-          style="
-            background: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 6px;
-            padding: 12px;
-          "
-        >
-          {{#each recommendations}}
-          <div style="margin-bottom: 8px">
-            <strong style="color: #2563eb">{{this.priority}}:</strong>
-            {{this.description}}
-          </div>
-          {{/each}}
-        </div>
-      </div> -->
     </div>
 
     <div class="footer">
-      Relatório gerado automaticamente via Elasticsearch APM | {{companyName}} |
-      {{generatedDate}}
+      Relatório gerado automaticamente | {{companyName}} | {{generatedDate}}
     </div>
   </body>
 </html>

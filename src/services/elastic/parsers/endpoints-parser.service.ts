@@ -28,7 +28,6 @@ export class EndpointsParser implements ParserService {
     const highestLatency = [...highestLatencyBuckets]
       .filter((b) => b?.avg_response_time?.value != null)
       .sort((a, b) => +b?.avg_response_time.value - +a?.avg_response_time.value)
-      .slice(0, 5)
       .map((bucket) => ({
         name: bucket.key,
         latency: `${Math.round(bucket.avg_response_time.value)}ms`,
@@ -52,7 +51,6 @@ export class EndpointsParser implements ParserService {
         }));
       })
       .sort((a, b) => +b.totalErrors - +a.totalErrors)
-      .slice(0, 5);
 
     return { highestLatency, highestErrors };
   }

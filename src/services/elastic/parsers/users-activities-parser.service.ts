@@ -33,7 +33,7 @@ export class UserActivitiesParser implements ParserService {
 
     const formatPercent = (value) => `${(value * 100).toFixed(1)}%`;
 
-    const topUsers = topUserBuckets.slice(0, 5).map((user) => ({
+    const topUsers = topUserBuckets.map((user) => ({
       user: user.key,
       requests: formatNumber(user.total_requests?.value),
       percentage: formatPercent(
@@ -50,7 +50,6 @@ export class UserActivitiesParser implements ParserService {
         const errors = user.error_count?.doc_count || 0;
         return deletes > 5 || put > 100 || errors > 50;
       })
-      .slice(0, 3)
       .map((user) => {
         const methods = user.methods_used?.buckets || [];
         const deletes = methods.find((m) => m.key === 'DELETE')?.doc_count || 0;

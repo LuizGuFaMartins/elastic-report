@@ -14,6 +14,7 @@ import { EndpointsParser } from './services/elastic/parsers/endpoints-parser.ser
 import { ElasticQueryService } from './services/elastic/elastic-query.service';
 import { ServicesHealthParser } from './services/elastic/parsers/services-health-parser.service';
 import { UserActivitiesParser } from './services/elastic/parsers/users-activities-parser.service';
+import { EstatisticsParser } from './services/elastic/parsers/estatistics-parser.service';
 
 @Module({
   controllers: [AppController],
@@ -39,6 +40,7 @@ import { UserActivitiesParser } from './services/elastic/parsers/users-activitie
     PdfService,
     DayjsService,
     OverviewParser,
+    EstatisticsParser,
     EndpointsParser,
     ServicesHealthParser,
     UserActivitiesParser,

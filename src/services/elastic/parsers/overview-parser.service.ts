@@ -96,10 +96,7 @@ export class OverviewParser implements ParserService {
     return this.formatNumber(Math.round(avgRequestsPerMinute));
   }
 
-  parse(
-    elasticsearchResponse: ElasticsearchOverview,
-    previousWeekData?: ElasticsearchOverview,
-  ): Overview {
+  parse(elasticsearchResponse: any, previousWeekData?: any) {
     const aggs = elasticsearchResponse.aggregations;
 
     const avgLatencyMs = aggs.avg_latency.value || 0;
