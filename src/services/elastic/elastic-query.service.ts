@@ -724,12 +724,13 @@ export class ElasticQueryService {
         },
       },
       aggs: {
-        // Top usuários por volume
         top_users: {
           terms: {
             field: 'userEmail',
-            size: 10,
-            order: { _count: 'desc' },
+            size: 5,
+            order: {
+              _count: 'desc',
+            },
           },
           aggs: {
             total_requests: {
@@ -764,7 +765,6 @@ export class ElasticQueryService {
             },
           },
         },
-        // Usuários com mais erros
         top_error_users: {
           filter: {
             range: {
@@ -777,7 +777,7 @@ export class ElasticQueryService {
             users: {
               terms: {
                 field: 'userEmail',
-                size: 10,
+                size: 5,
               },
               aggs: {
                 error_breakdown: {
@@ -788,7 +788,7 @@ export class ElasticQueryService {
                 },
                 most_failed_endpoints: {
                   terms: {
-                    field: 'urlPath',
+                    field: 'urlPath.keyword',
                     size: 5,
                   },
                 },
@@ -796,12 +796,11 @@ export class ElasticQueryService {
             },
           },
         },
-        // IPs suspeitos (muitas requisições)
         suspicious_ips: {
           terms: {
             field: 'remoteIpAddress',
-            size: 10,
-            min_doc_count: 1000, // IPs com mais de 1000 requisições
+            size: 5,
+            min_doc_count: 1000,
           },
           aggs: {
             unique_users: {
@@ -813,7 +812,7 @@ export class ElasticQueryService {
               date_histogram: {
                 field: 'dateTime',
                 calendar_interval: 'hour',
-                time_zone: this.getTimeData().tz,
+                time_zone: 'America/Sao_Paulo',
               },
             },
             error_rate: {
@@ -834,52 +833,41 @@ export class ElasticQueryService {
             },
             top_endpoints: {
               terms: {
-                field: 'urlPath',
+                field: 'urlPath.keyword',
                 size: 5,
               },
             },
           },
         },
-        // Atividade fora do horário comercial
-        off_hours_activity: {
-          filter: {
-            script: {
-              script: {
-                source: `
-                  def hour = doc['dateTime'].value.getHour();
-                  return hour < 8 || hour > 18;
-                `,
-              },
-            },
-          },
-          aggs: {
-            by_user: {
-              terms: {
-                field: 'userEmail',
-                size: 10,
-              },
-              aggs: {
-                by_hour: {
-                  date_histogram: {
-                    field: 'dateTime',
-                    calendar_interval: 'hour',
-                    time_zone: this.getTimeData().tz,
-                  },
-                },
-              },
-            },
-          },
-        },
-        // Tentativas de acesso a endpoints sensíveis
         sensitive_endpoints_access: {
           filter: {
             bool: {
               should: [
-                { wildcard: { urlPath: '*admin*' } },
-                { wildcard: { urlPath: '*password*' } },
-                { wildcard: { urlPath: '*auth*' } },
-                { wildcard: { urlPath: '*login*' } },
-                { wildcard: { urlPath: '*user*' } },
+                {
+                  wildcard: {
+                    urlPath: '*admin*',
+                  },
+                },
+                {
+                  wildcard: {
+                    urlPath: '*password*',
+                  },
+                },
+                {
+                  wildcard: {
+                    urlPath: '*auth*',
+                  },
+                },
+                {
+                  wildcard: {
+                    urlPath: '*login*',
+                  },
+                },
+                {
+                  wildcard: {
+                    urlPath: '*user*',
+                  },
+                },
               ],
               minimum_should_match: 1,
             },
@@ -888,13 +876,13 @@ export class ElasticQueryService {
             by_user: {
               terms: {
                 field: 'userEmail',
-                size: 10,
+                size: 5,
               },
               aggs: {
                 endpoints_accessed: {
                   terms: {
-                    field: 'urlPath',
-                    size: 10,
+                    field: 'urlPath.keyword',
+                    size: 5,
                   },
                 },
                 success_rate: {

@@ -13,6 +13,7 @@ import { OverviewParser } from './services/elastic/parsers/overview-parser.servi
 import { EndpointsParser } from './services/elastic/parsers/endpoints-parser.service';
 import { ElasticQueryService } from './services/elastic/elastic-query.service';
 import { ServicesHealthParser } from './services/elastic/parsers/services-health-parser.service';
+import { UserActivitiesParser } from './services/elastic/parsers/users-activities-parser.service';
 
 @Module({
   controllers: [AppController],
@@ -40,6 +41,7 @@ import { ServicesHealthParser } from './services/elastic/parsers/services-health
     OverviewParser,
     EndpointsParser,
     ServicesHealthParser,
+    UserActivitiesParser,
   ],
 })
 export class AppModule {}

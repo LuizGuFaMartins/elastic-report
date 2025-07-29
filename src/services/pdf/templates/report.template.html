@@ -90,11 +90,11 @@
 
       /* Sections */
       .section {
-        margin-bottom: 20px;
         page-break-inside: avoid;
       }
 
       .section-title {
+        margin-top: 20px;
         background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
         color: #1f2937;
         padding: 8px 12px;
@@ -211,6 +211,12 @@
         color: #6b7280;
         font-size: 10px;
         margin-bottom: 10px;
+      }
+
+      .column {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
       }
 
       /* Two column layout */
@@ -338,102 +344,106 @@
       <!-- 2. Principais Endpoints -->
       <div class="section">
         <h3 class="section-title">2. Principais Endpoints / Transações</h3>
-        <div class="two-columns">
-          <div>
-            <h4 style="font-size: 11px; margin-bottom: 8px">
-              Top 5 - Maior Latência (Semana atual)
-            </h4>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Endpoint</th>
-                  <th>Latência</th>
-                  <th>Volume</th>
-                </tr>
-              </thead>
-              <tbody>
-                {{#each endpoints.highestLatency}}
-                <tr>
-                  <td>{{this.name}}</td>
-                  <td>{{this.latency}}</td>
-                  <td>{{this.volume}}</td>
-                </tr>
-                {{/each}}
-              </tbody>
-            </table>
-          </div>
-          <div>
-            <h4 style="font-size: 11px; margin-bottom: 8px">
-              Top 5 - Maior Erro (Semana atual)
-            </h4>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Endpoint</th>
-                  <th>Código</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {{#each endpoints.highestErrors}}
-                <tr>
-                  <td>{{this.name}}</td>
-                  <td>{{this.statusCode}}</td>
-                  <td>{{this.totalErrors}}</td>
-                </tr>
-                {{/each}}
-              </tbody>
-            </table>
-          </div>
+        <div class="column">
+          <h4 style="font-size: 11px; margin-bottom: 8px">
+            Top 5 - Maior Latência (Semana atual)
+          </h4>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 500px">Endpoint</th>
+                <th>Latência</th>
+                <th>Volume</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each endpoints.highestLatency}}
+              <tr>
+                <td>{{this.name}}</td>
+                <td>{{this.latency}}</td>
+                <td>{{this.volume}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
         </div>
+      </div>
 
-        <div class="two-columns">
-          <div>
-            <h4 style="font-size: 11px; margin-bottom: 8px">
-              Top 5 - Maior Latência (Semana passada)
-            </h4>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Endpoint</th>
-                  <th>Latência</th>
-                  <th>Volume</th>
-                </tr>
-              </thead>
-              <tbody>
-                {{#each lastWeekEndpoints.highestLatency}}
-                <tr>
-                  <td>{{this.name}}</td>
-                  <td>{{this.latency}}</td>
-                  <td>{{this.volume}}</td>
-                </tr>
-                {{/each}}
-              </tbody>
-            </table>
-          </div>
-          <div>
-            <h4 style="font-size: 11px; margin-bottom: 8px">
-              Top 5 - Maior Erro (Semana passada)
-            </h4>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Endpoint</th>
-                  <th>Código</th>
-                  <th>Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                {{#each lastWeekEndpoints.highestErrors}}
-                <tr>
-                  <td>{{this.name}}</td>
-                  <td>{{this.statusCode}}</td>
-                  <td>{{this.totalErrors}}</td>
-                </tr>
-                {{/each}}
-              </tbody>
-            </table>
-          </div>
+      <div class="section">
+        <div class="column">
+          <h4 style="font-size: 11px; margin-bottom: 8px">
+            Top 5 - Maior Erro (Semana atual)
+          </h4>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 500px">Endpoint</th>
+                <th>Código</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each endpoints.highestErrors}}
+              <tr>
+                <td>{{this.name}}</td>
+                <td>{{this.statusCode}}</td>
+                <td>{{this.totalErrors}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="column">
+          <h4 style="font-size: 11px; margin-bottom: 8px">
+            Top 5 - Maior Latência (Semana passada)
+          </h4>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 500px">Endpoint</th>
+                <th>Latência</th>
+                <th>Volume</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each lastWeekEndpoints.highestLatency}}
+              <tr>
+                <td>{{this.name}}</td>
+                <td>{{this.latency}}</td>
+                <td>{{this.volume}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="column">
+          <h4 style="font-size: 11px; margin-bottom: 8px">
+            Top 5 - Maior Erro (Semana passada)
+          </h4>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 500px">Endpoint</th>
+                <th>Código</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each lastWeekEndpoints.highestErrors}}
+              <tr>
+                <td>{{this.name}}</td>
+                <td>{{this.statusCode}}</td>
+                <td>{{this.totalErrors}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -475,7 +485,8 @@
 
       <!-- 3. Uso por Usuário -->
       <div class="section">
-        <h3 class="section-title">6. Análise de Uso</h3>
+        <h3 class="section-title">3. Uso por Usuário</h3>
+
         <div class="two-columns">
           <div>
             <h4 style="font-size: 11px; margin-bottom: 8px">
@@ -526,9 +537,168 @@
         </div>
       </div>
 
-      <!-- 4. Saúde por Serviço -->
+      <!-- 4. Erros por Usuário -->
       <div class="section">
-        <h3 class="section-title">4. Saúde por Serviço</h3>
+        <h3 class="section-title">4. Erros por Usuário</h3>
+
+        {{#each errorUsers}}
+        <h4 style="font-size: 11px; margin-bottom: 4px">{{this.user}}</h4>
+        <p style="font-size: 10px; margin-bottom: 4px">
+          Total de Erros: {{this.totalErrors}}
+        </p>
+
+        <table class="data-table" style="margin-bottom: 12px">
+          <thead>
+            <tr>
+              <th>Códigos de Erro</th>
+              <th>Ocorrências</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each this.errorCodes}}
+            <tr>
+              <td>{{this.code}}</td>
+              <td>{{this.count}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+
+        <table class="data-table" style="margin-bottom: 20px">
+          <thead>
+            <tr>
+              <th>Endpoints Mais Afetados</th>
+              <th>Ocorrências</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each this.failedEndpoints}}
+            <tr>
+              <td>{{this.endpoint}}</td>
+              <td>{{this.count}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+        {{/each}}
+      </div>
+
+      <!-- 5. Acessos a Endpoints Sensíveis -->
+      <div class="section">
+        <h3 class="section-title">5. Acessos a Endpoints Sensíveis</h3>
+
+        {{#each sensitiveAccess.users}}
+        <h4 style="font-size: 11px; margin-bottom: 4px">{{this.user}}</h4>
+        <p style="font-size: 10px; margin-bottom: 4px">
+          Total de Acessos: {{this.totalAccesses}} | Taxa de Sucesso:
+          {{this.successRate}}
+        </p>
+
+        <table class="data-table" style="margin-bottom: 20px">
+          <thead>
+            <tr>
+              <th>Endpoint Sensível</th>
+              <th>Requisições</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each this.endpoints}}
+            <tr>
+              <td>{{this.endpoint}}</td>
+              <td>{{this.count}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+        {{/each}}
+      </div>
+
+      <!-- 6. IPs Suspeitos -->
+      <div class="section">
+        <h3 class="section-title">6. IPs Suspeitos</h3>
+
+        {{#each suspiciousIPs}}
+        <h4 style="font-size: 11px; margin-bottom: 4px">IP: {{this.ip}}</h4>
+        <p style="font-size: 10px; margin-bottom: 4px">
+          Requisições: {{this.totalRequests}} | Usuários Únicos:
+          {{this.uniqueUsers}} | Erros: {{this.errorRate}}
+        </p>
+
+        <table class="data-table" style="margin-bottom: 20px">
+          <thead>
+            <tr>
+              <th>Endpoints mais acessados</th>
+              <th>Requisições</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each this.topEndpoints}}
+            <tr>
+              <td>{{this.endpoint}}</td>
+              <td>{{this.count}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+        {{/each}}
+      </div>
+
+      <!-- <div class="section">
+        <h3 class="section-title">4. Erros por Usuário</h3>
+
+        <div class="two-columns">
+          <div>
+            <h4 style="font-size: 11px; margin-bottom: 8px">
+              Top erros por Usuários
+            </h4>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Usuário/Sistema</th>
+                  <th>Requisições</th>
+                  <th>% do Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{#each usage.topUsers}}
+                <tr>
+                  <td>{{this.user}}</td>
+                  <td>{{this.requests}}</td>
+                  <td>{{this.percentage}}</td>
+                </tr>
+                {{/each}}
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <h4 style="font-size: 11px; margin-bottom: 8px">
+              Acessos Suspeitos
+            </h4>
+            {{#each usage.suspiciousActivity}}
+            <div
+              style="
+                background: #fef2f2;
+                border-left: 3px solid #ef4444;
+                padding: 8px;
+                margin-bottom: 6px;
+              "
+            >
+              <div style="font-weight: 600; font-size: 10px; color: #991b1b">
+                {{this.type}}
+              </div>
+              <div style="font-size: 9px; color: #6b7280">{{this.details}}</div>
+              <div style="font-size: 8px; color: #9ca3af">
+                {{this.timestamp}}
+              </div>
+            </div>
+            {{/each}}
+          </div>
+        </div>
+      </div> -->
+
+      <!-- 4. Comparação com os outros serviços -->
+      <div class="section">
+        <h3 class="section-title">4. Comparação com os outros serviços</h3>
         <table class="data-table">
           <thead>
             <tr>

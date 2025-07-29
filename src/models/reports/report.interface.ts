@@ -82,8 +82,8 @@ export interface Report {
     ];
   };
 
-  usage: {
-    topUsers: [
+  usage?: {
+    topUsers?: [
       {
         user: string;
         requests: string;
@@ -110,7 +110,7 @@ export interface Report {
         percentage: string;
       },
     ];
-    suspiciousActivity: [
+    suspiciousActivity?: [
       {
         type: string;
         details: string;
@@ -129,7 +129,7 @@ export interface Report {
     ];
   };
 
-  comparison: {
+  comparison?: {
     latencyChange: string;
     latencyTrend: string;
 
@@ -143,7 +143,7 @@ export interface Report {
     alertsTrend: string;
   };
 
-  recommendations: [
+  recommendations?: [
     {
       priority: string;
       description: string;

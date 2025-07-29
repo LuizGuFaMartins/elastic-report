@@ -5,6 +5,7 @@ import { OverviewParser } from './parsers/overview-parser.service';
 import { EndpointsParser } from './parsers/endpoints-parser.service';
 import { ElasticQueryService } from './elastic-query.service';
 import { ServicesHealthParser } from './parsers/services-health-parser.service';
+import { UserActivitiesParser } from './parsers/users-activities-parser.service';
 
 @Injectable()
 export class ElasticReportService {
@@ -16,6 +17,7 @@ export class ElasticReportService {
     private readonly endpointsParser: EndpointsParser,
     private readonly elasticQueryService: ElasticQueryService,
     private readonly servicesHealthParser: ServicesHealthParser,
+    private readonly userActivitiesParser: UserActivitiesParser,
   ) {
     this.dayjs = this.dayjsService.getInstance();
   }
@@ -102,7 +104,10 @@ export class ElasticReportService {
       //   'lastWeek',
       // );
 
-      // const userAnalysis = await this.getUserAnalysis(companyId);
+      const userAnalysis = await this.elasticQueryService.getUserAnalysis(
+        serviceName,
+        companyId,
+      );
       // const weeklyComparison = await this.getWeeklyComparison(
       //   serviceName,
       //   companyId,
@@ -127,7 +132,7 @@ export class ElasticReportService {
           serviceName,
           companyId,
         },
-        // userAnalysis,
+        ...this.userActivitiesParser.parse(userAnalysis),
         // weeklyComparison,
       };
 
