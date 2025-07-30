@@ -1,15 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { ElasticHttpService } from './elastic-http.service';
 import { DayjsService } from '../commom/dayjs.service';
-import { OverviewParser } from './parsers/overview-parser.service';
-import { EndpointsParser } from './parsers/endpoints-parser.service';
+import { ElasticHttpService } from './elastic-http.service';
 
 @Injectable()
 export class ElasticQueryService {
   private dayjs: any;
 
   constructor(
-    private readonly http: ElasticHttpService,
+    private readonly elasticHttp: ElasticHttpService,
     private readonly dayjsService: DayjsService,
   ) {
     this.dayjs = this.dayjsService.getInstance();
@@ -180,7 +178,10 @@ export class ElasticQueryService {
       },
     };
 
-    return await this.http.post(`/${process.env.ELASTIC_INDEX}/_search`, body);
+    return await this.elasticHttp.post(
+      `/${process.env.ELASTIC_REQUEST_LOGS_INDEX}/_search`,
+      body,
+    );
   }
 
   async getTopEndpointsByLatency(
@@ -229,7 +230,10 @@ export class ElasticQueryService {
       },
     };
 
-    return await this.http.post(`/${process.env.ELASTIC_INDEX}/_search`, body);
+    return await this.elasticHttp.post(
+      `/${process.env.ELASTIC_REQUEST_LOGS_INDEX}/_search`,
+      body,
+    );
   }
 
   async getTopEndpointsByErrors(
@@ -294,7 +298,10 @@ export class ElasticQueryService {
       },
     };
 
-    return await this.http.post(`/${process.env.ELASTIC_INDEX}/_search`, body);
+    return await this.elasticHttp.post(
+      `/${process.env.ELASTIC_REQUEST_LOGS_INDEX}/_search`,
+      body,
+    );
   }
 
   async getErrorAnalysis(
@@ -303,15 +310,6 @@ export class ElasticQueryService {
     period: 'week' | 'lastWeek' = 'week',
   ) {
     const filters: any = [this.getDateRangeFilter(period)];
-
-    filters.push({
-      range: {
-        statusCode: {
-          gte: 400,
-        },
-      },
-    });
-
     if (serviceName) filters.push(this.getServiceFilter(serviceName));
     if (companyId) filters.push(this.getCompanyFilter(companyId));
 
@@ -326,7 +324,7 @@ export class ElasticQueryService {
         by_status_code: {
           terms: {
             field: 'statusCode',
-            size: 10,
+            size: 5,
           },
           aggs: {
             by_endpoint: {
@@ -362,7 +360,10 @@ export class ElasticQueryService {
       },
     };
 
-    return await this.http.post(`/${process.env.ELASTIC_INDEX}/_search`, body);
+    return await this.elasticHttp.post(
+      `/${process.env.ELASTIC_REQUEST_LOGS_INDEX}/_search`,
+      body,
+    );
   }
 
   async getServiceHealth(
@@ -443,7 +444,10 @@ export class ElasticQueryService {
       },
     };
 
-    return await this.http.post(`/${process.env.ELASTIC_INDEX}/_search`, body);
+    return await this.elasticHttp.post(
+      `/${process.env.ELASTIC_REQUEST_LOGS_INDEX}/_search`,
+      body,
+    );
   }
 
   async getUserAnalysis(
@@ -648,6 +652,9 @@ export class ElasticQueryService {
       },
     };
 
-    return await this.http.post(`/${process.env.ELASTIC_INDEX}/_search`, body);
+    return await this.elasticHttp.post(
+      `/${process.env.ELASTIC_REQUEST_LOGS_INDEX}/_search`,
+      body,
+    );
   }
 }

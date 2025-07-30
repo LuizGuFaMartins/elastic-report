@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { ParserService } from './parser.interface';
+import { ParserService } from '../../abstracts/parser-service.interface';
 
 @Injectable()
-export class UserActivitiesParser implements ParserService {
+export class UserActivitiesParser extends ParserService {
   parse(data) {
     const aggregations = data?.aggregations || {};
 

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { ParserService } from './parser.interface';
+import { ParserService } from '../../abstracts/parser-service.interface';
 
 @Injectable()
-export class EndpointsParser implements ParserService {
+export class EndpointsParser extends ParserService {
   parse(endpoints: { highestLatency: any; highestErrors: any }): {
     highestLatency: {
       name: string;
@@ -30,7 +30,7 @@ export class EndpointsParser implements ParserService {
       .sort((a, b) => +b?.avg_response_time.value - +a?.avg_response_time.value)
       .map((bucket) => ({
         name: bucket.key,
-        latency: `${Math.round(bucket.avg_response_time.value)}ms`,
+        latency: this.formatTime(Math.round(bucket.avg_response_time.value)),
         volume: formatNumber(bucket.total_requests.value || bucket.doc_count),
       }));
 
@@ -50,7 +50,7 @@ export class EndpointsParser implements ParserService {
           totalErrors: status.doc_count,
         }));
       })
-      .sort((a, b) => +b.totalErrors - +a.totalErrors)
+      .sort((a, b) => +b.totalErrors - +a.totalErrors);
 
     return { highestLatency, highestErrors };
   }

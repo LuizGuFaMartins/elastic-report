@@ -9,7 +9,7 @@ import { reportMock } from 'src/shared/mocks/report-mock';
 
 import { DayjsService } from 'src/services/commom/dayjs.service';
 import { QualiexServices } from 'src/shared/enums/qualiex-services.enum';
-import { ElasticReportService } from '../elastic/elastic-report.service';
+import { ReportService } from '../report/report.service';
 
 @Injectable()
 export class ReportCronService {
@@ -19,7 +19,7 @@ export class ReportCronService {
 
   constructor(
     private readonly pdfService: PdfService,
-    private readonly elasticReportService: ElasticReportService,
+    private readonly ReportService: ReportService,
     private readonly mailService: MailService,
     private readonly dayjsService: DayjsService,
   ) {
@@ -43,7 +43,7 @@ export class ReportCronService {
     service: string,
   ): Promise<{ name: string; buffer: any }> {
     const data =
-      await this.elasticReportService.generateHealthReportData(service);
+      await this.ReportService.generateHealthReportData(service);
 
     console.log('data: ', data);
 

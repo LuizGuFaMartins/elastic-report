@@ -8,13 +8,15 @@ import { MailService } from './services/mail/mail.service';
 import { PdfService } from './services/pdf/pdf.service';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { DayjsService } from './services/commom/dayjs.service';
-import { ElasticReportService } from './services/elastic/elastic-report.service';
+import { ReportService } from './services/report/report.service';
 import { OverviewParser } from './services/elastic/parsers/overview-parser.service';
 import { EndpointsParser } from './services/elastic/parsers/endpoints-parser.service';
 import { ElasticQueryService } from './services/elastic/elastic-query.service';
 import { ServicesHealthParser } from './services/elastic/parsers/services-health-parser.service';
 import { UserActivitiesParser } from './services/elastic/parsers/users-activities-parser.service';
 import { EstatisticsParser } from './services/elastic/parsers/estatistics-parser.service';
+import { ApmHttpService } from './services/apm/apm-http.service';
+import { ApmQueryService } from './services/apm/apm-query.service';
 
 @Module({
   controllers: [AppController],
@@ -32,9 +34,11 @@ import { EstatisticsParser } from './services/elastic/parsers/estatistics-parser
     HttpModule,
   ],
   providers: [
+    ReportService,
     ReportCronService,
+    ApmHttpService,
+    ApmQueryService,
     ElasticHttpService,
-    ElasticReportService,
     ElasticQueryService,
     MailService,
     PdfService,

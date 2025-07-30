@@ -1,16 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { ParserService } from './parser.interface';
+import { ParserService } from '../../abstracts/parser-service.interface';
 
 @Injectable()
-export class ServicesHealthParser implements ParserService {
+export class ServicesHealthParser extends ParserService {
   parse(data) {
-    const formatNumber = (value) =>
-      Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format(
-        value || 0,
-      );
-
-    const formatPercent = (value) => `${(value * 100).toFixed(2)}%`;
-
     const services =
       data?.aggregations?.by_service?.buckets?.map((bucket) => {
         const name = bucket.key;
@@ -59,8 +52,8 @@ export class ServicesHealthParser implements ParserService {
           name,
           status,
           avgLatency: `${Math.round(avgLatency)}ms`,
-          volume: formatNumber(volume),
-          errorRate: formatPercent(errorRate),
+          volume: this.formatNumber(volume),
+          errorRate: this.formatPercent(errorRate),
           changes,
         };
       }) || [];

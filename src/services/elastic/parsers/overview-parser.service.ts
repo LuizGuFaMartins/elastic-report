@@ -1,18 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { ParserService } from './parser.interface';
+import { ParserService } from '../../abstracts/parser-service.interface';
 
 @Injectable()
-export class OverviewParser implements ParserService {
-  private formatNumber(value: number): string {
-    if (value >= 1000000) {
-      return `${(value / 1000000).toFixed(1)}M`;
-    }
-    if (value >= 1000) {
-      return `${(value / 1000).toFixed(1)}k`;
-    }
-    return value.toString();
-  }
-
+export class OverviewParser extends ParserService {
   private calculateTrend(buckets: Array<{ doc_count: number }>): {
     trend: string;
     change: string;

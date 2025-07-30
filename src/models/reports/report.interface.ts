@@ -14,37 +14,4 @@ export interface Report {
   suspiciousIPs: any;
   services: ServiceHealth[];
   selectedServices: ServiceHealth[];
-
-  // errors: {
-  //   error5xx: string;
-  //   error4xx: string;
-  //   newErrorTypes: string;
-  //   criticalEndpoints: string;
-  //   topErrors: [
-  //     {
-  //       type: string;
-  //       count: string;
-  //       description: string;
-  //       lastOccurrence: string;
-  //     },
-  //     {
-  //       type: string;
-  //       count: string;
-  //       description: string;
-  //       lastOccurrence: string;
-  //     },
-  //     {
-  //       type: string;
-  //       count: string;
-  //       description: string;
-  //       lastOccurrence: string;
-  //     },
-  //     {
-  //       type: string;
-  //       count: string;
-  //       description: string;
-  //       lastOccurrence: string;
-  //     },
-  //   ];
-  // };
 }
