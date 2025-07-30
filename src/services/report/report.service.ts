@@ -23,35 +23,41 @@ export class ReportService {
     this.dayjs = this.dayjsService.getInstance();
   }
 
-  async generateHealthReportData(serviceName?: string, companyId?: string) {
+  async generateHealthReportData(
+    services: {
+      elasticServices: string[];
+      apmServices: string[];
+    },
+    companyId?: string,
+  ) {
     try {
       const estatistics = await this.elasticQueryService.getOverviewEstatistics(
-        serviceName,
+        services?.elasticServices,
         companyId,
       );
 
       const topLatencyEndpoints =
         await this.elasticQueryService.getTopEndpointsByLatency(
-          serviceName,
+          services?.elasticServices,
           companyId,
         );
 
       const topErrorEndpoints =
         await this.elasticQueryService.getTopEndpointsByErrors(
-          serviceName,
+          services?.elasticServices,
           companyId,
         );
 
       const lastWeekEstatistics =
         await this.elasticQueryService.getOverviewEstatistics(
-          serviceName,
+          services?.elasticServices,
           companyId,
           'lastWeek',
         );
 
       const lastWeekTopLatencyEndpoints =
         await this.elasticQueryService.getTopEndpointsByLatency(
-          serviceName,
+          services?.elasticServices,
           companyId,
           5,
           'lastWeek',
@@ -59,24 +65,24 @@ export class ReportService {
 
       const lastWeekTopErrorEndpoints =
         await this.elasticQueryService.getTopEndpointsByErrors(
-          serviceName,
+          services?.elasticServices,
           companyId,
           5,
           'lastWeek',
         );
 
       const userAnalysis = await this.elasticQueryService.getUserAnalysis(
-        serviceName,
+        services?.elasticServices,
         companyId,
       );
 
       const serviceHealth =
         await this.elasticQueryService.getServiceHealth(companyId);
 
-      const services = this.servicesHealthParser.parse(serviceHealth);
+      const servicesHealth = this.servicesHealthParser.parse(serviceHealth);
 
-      const errors =
-        await this.elasticQueryService.getErrorAnalysis(serviceName);
+      // const errors =
+      //   await this.elasticQueryService.getErrorAnalysis(serviceName);
 
       const data = {
         estatistics: this.estatisticsParser.parse(
@@ -91,9 +97,11 @@ export class ReportService {
           highestLatency: lastWeekTopLatencyEndpoints,
           highestErrors: lastWeekTopErrorEndpoints,
         }),
-        services: services.filter((s) => !s?.name?.includes(serviceName)),
-        selectedServices: services.filter((s) =>
-          s?.name?.includes(serviceName),
+        services: servicesHealth.filter(
+          (s) => !services?.elasticServices.includes(s?.name),
+        ),
+        selectedServices: servicesHealth.filter((s) =>
+          services?.elasticServices.includes(s?.name),
         ),
         ...this.userActivitiesParser.parse(userAnalysis),
       };
@@ -103,7 +111,7 @@ export class ReportService {
         generatedAt: new Date().toISOString(),
         period: this.elasticQueryService.getTimeData(),
         filters: {
-          serviceName,
+          services,
           companyId,
         },
       };

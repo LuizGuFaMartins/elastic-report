@@ -66,24 +66,26 @@ export class ElasticQueryService {
     };
   }
 
-  private getServiceFilter(service: string): any {
+  private getServiceFilter(services: string[]): any {
     return {
       bool: {
         should: [
-          {
-            bool: {
-              should: [
-                {
-                  term: {
-                    software: {
-                      value: service,
+          ...services?.map((service) => {
+            return {
+              bool: {
+                should: [
+                  {
+                    term: {
+                      software: {
+                        value: service,
+                      },
                     },
                   },
-                },
-              ],
-              minimum_should_match: 1,
-            },
-          },
+                ],
+                minimum_should_match: 1,
+              },
+            };
+          }),
         ],
         minimum_should_match: 1,
       },
@@ -116,12 +118,12 @@ export class ElasticQueryService {
   }
 
   async getOverviewEstatistics(
-    serviceName?: string,
+    services?: string[],
     companyId?: string,
     period: 'week' | 'lastWeek' = 'week',
   ) {
     const filters = [this.getDateRangeFilter(period)];
-    if (serviceName) filters.push(this.getServiceFilter(serviceName));
+    if (services) filters.push(this.getServiceFilter(services));
     if (companyId) filters.push(this.getCompanyFilter(companyId));
 
     const body = {
@@ -185,13 +187,13 @@ export class ElasticQueryService {
   }
 
   async getTopEndpointsByLatency(
-    serviceName?: string,
+    services?: string[],
     companyId?: string,
     size: number = 5,
     period: 'week' | 'lastWeek' = 'week',
   ) {
     const filters = [this.getDateRangeFilter(period)];
-    if (serviceName) filters.push(this.getServiceFilter(serviceName));
+    if (services) filters.push(this.getServiceFilter(services));
     if (companyId) filters.push(this.getCompanyFilter(companyId));
 
     const body = {
@@ -237,13 +239,13 @@ export class ElasticQueryService {
   }
 
   async getTopEndpointsByErrors(
-    serviceName?: string,
+    services?: string[],
     companyId?: string,
     size: number = 5,
     period: 'week' | 'lastWeek' = 'week',
   ) {
     const filters = [this.getDateRangeFilter(period)];
-    if (serviceName) filters.push(this.getServiceFilter(serviceName));
+    if (services) filters.push(this.getServiceFilter(services));
     if (companyId) filters.push(this.getCompanyFilter(companyId));
 
     const body = {
@@ -305,12 +307,12 @@ export class ElasticQueryService {
   }
 
   async getErrorAnalysis(
-    serviceName?: string,
+    services?: string[],
     companyId?: string,
     period: 'week' | 'lastWeek' = 'week',
   ) {
     const filters: any = [this.getDateRangeFilter(period)];
-    if (serviceName) filters.push(this.getServiceFilter(serviceName));
+    if (services) filters.push(this.getServiceFilter(services));
     if (companyId) filters.push(this.getCompanyFilter(companyId));
 
     const body = {
@@ -451,12 +453,12 @@ export class ElasticQueryService {
   }
 
   async getUserAnalysis(
-    serviceName?: string,
+    services?: string[],
     companyId?: string,
     period: 'week' | 'lastWeek' = 'week',
   ) {
     const filters = [this.getDateRangeFilter(period)];
-    if (serviceName) filters.push(this.getServiceFilter(serviceName));
+    if (services) filters.push(this.getServiceFilter(services));
     if (companyId) filters.push(this.getCompanyFilter(companyId));
 
     const body = {
@@ -542,7 +544,7 @@ export class ElasticQueryService {
         suspicious_ips: {
           terms: {
             field: 'remoteIpAddress',
-            size: 5,
+            size: 3,
             min_doc_count: 1000,
           },
           aggs: {
@@ -619,7 +621,7 @@ export class ElasticQueryService {
             by_user: {
               terms: {
                 field: 'userEmail',
-                size: 5,
+                size: 3,
               },
               aggs: {
                 endpoints_accessed: {

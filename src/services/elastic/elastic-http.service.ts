@@ -10,23 +10,27 @@ export class ElasticHttpService {
   constructor(private readonly httpService: HttpService) {}
 
   async get<T>(path: string, params: any = {}): Promise<any> {
-    const config: AxiosRequestConfig = {
-      auth: {
-        username: process.env.ELASTIC_USER || '',
-        password: process.env.ELASTIC_PASS || '',
-      },
-      headers: {
-        'kbn-xsrf': 'true',
-        'Content-Type': 'application/json',
-      },
-      params,
-    };
+    try {
+      const config: AxiosRequestConfig = {
+        auth: {
+          username: process.env.ELASTIC_USER || '',
+          password: process.env.ELASTIC_PASS || '',
+        },
+        headers: {
+          'kbn-xsrf': 'true',
+          'Content-Type': 'application/json',
+        },
+        params,
+      };
 
-    const endpoint = this.BASE_URL + path;
-    const response$ = this.httpService.get<T>(endpoint, config);
-    const response = await firstValueFrom(response$);
+      const endpoint = this.BASE_URL + path;
+      const response$ = this.httpService.get<T>(endpoint, config);
+      const response = await firstValueFrom(response$);
 
-    return response?.data || response;
+      return response?.data || response;
+    } catch (e) {
+      console.log('Failed to execute request: ', e);
+    }
   }
 
   async post<T>(path: string, body: any = {}): Promise<any> {

@@ -8,18 +8,20 @@ import { MailService } from 'src/services/mail/mail.service';
 import { reportMock } from 'src/shared/mocks/report-mock';
 
 import { DayjsService } from 'src/services/commom/dayjs.service';
-import { QualiexServices } from 'src/shared/enums/qualiex-services.enum';
+import {
+  QualiexApmServices,
+  QualiexElasticServices,
+} from 'src/shared/enums/qualiex-services.enum';
 import { ReportService } from '../report/report.service';
 
 @Injectable()
 export class ReportCronService {
   private readonly logger = new Logger(ReportCronService.name);
-  private reportService = QualiexServices.QualiexAudit;
   private dayjs: any;
 
   constructor(
     private readonly pdfService: PdfService,
-    private readonly ReportService: ReportService,
+    private readonly reportService: ReportService,
     private readonly mailService: MailService,
     private readonly dayjsService: DayjsService,
   ) {
@@ -30,8 +32,17 @@ export class ReportCronService {
   async handleWeeklyReport() {
     this.logger.debug('Iniciando geração de relatório...');
 
+    const services = {
+      elasticServices: process.env.ELASTIC_SERVICES?.split(',') || [
+        QualiexElasticServices.QualiexAudit,
+      ],
+      apmServices: process.env.APM_SERVICES?.split(',') || [
+        QualiexApmServices.Audit_API,
+      ],
+    };
+
     const pdfReport: { name: string; buffer: any } =
-      await this.generateReportBufferByService(this.reportService);
+      await this.generateReportBufferByService(services);
 
     await this.saveReportAsFile(pdfReport);
     // await this.sendReportEmail(pdfReport)
@@ -39,11 +50,11 @@ export class ReportCronService {
     this.logger.debug('Finalizando geração de relatório...');
   }
 
-  async generateReportBufferByService(
-    service: string,
-  ): Promise<{ name: string; buffer: any }> {
-    const data =
-      await this.ReportService.generateHealthReportData(service);
+  async generateReportBufferByService(services: {
+    elasticServices: string[];
+    apmServices: string[];
+  }): Promise<{ name: string; buffer: any }> {
+    const data = await this.reportService.generateHealthReportData(services);
 
     console.log('data: ', data);
 
@@ -51,7 +62,7 @@ export class ReportCronService {
 
     const pdfBuffer = await this.pdfService.generateReport({
       companyName: 'ForLogic',
-      companySubtitle: 'Serviço analisado: ' + this.reportService,
+      // companySubtitle: 'Serviço analisado: ' + this.reportService,
       companyInitials: 'FL',
       companyLogo: this.getLogo(),
       reportPeriod:
@@ -60,7 +71,7 @@ export class ReportCronService {
       ...data,
     });
 
-    const fileName = `./relatorio-${service?.trim().toLocaleLowerCase()}-${generationDate.format('DD-MM-YYYY')}.pdf`;
+    const fileName = `./relatorio-${services?.elasticServices?.[0]?.trim().toLocaleLowerCase()}-${generationDate.format('DD-MM-YYYY')}.pdf`;
 
     return {
       name: fileName,

@@ -28,20 +28,14 @@ export class UserActivitiesParser extends ParserService {
       0,
     );
 
-    const formatNumber = (val) =>
-      Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format(val || 0);
-
-    const formatPercent = (value) => `${(value * 100).toFixed(1)}%`;
-
     const topUsers = topUserBuckets.map((user) => ({
       user: user.key,
-      requests: formatNumber(user.total_requests?.value),
-      percentage: formatPercent(
+      requests: this.formatNumber(user.total_requests?.value),
+      percentage: this.formatPercent(
         (user.total_requests?.value || 0) / totalRequests,
       ),
     }));
 
-    // Exemplo de heurísticas para detecção de atividades suspeitas
     const suspiciousActivity = topUserBuckets
       .filter((user) => {
         const methods = user.methods_used?.buckets || [];
@@ -86,26 +80,23 @@ export class UserActivitiesParser extends ParserService {
   transformTopErrorUsers(data) {
     const users = data?.users?.buckets || [];
 
-    const formatNumber = (val) =>
-      Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 }).format(val || 0);
-
     const errorUsers = users.map((user) => {
       const errorCodes = (user.error_breakdown?.buckets || []).map(
         (bucket) => ({
           code: bucket.key,
-          count: formatNumber(bucket.doc_count),
+          count: this.formatNumber(bucket.doc_count),
         }),
       );
 
       const failedEndpoints =
         user.most_failed_endpoints?.buckets?.map((endpoint) => ({
           endpoint: endpoint.key,
-          count: formatNumber(endpoint.doc_count),
+          count: this.formatNumber(endpoint.doc_count),
         })) || [];
 
       return {
         user: user.key,
-        totalErrors: formatNumber(user.doc_count),
+        totalErrors: this.formatNumber(user.doc_count),
         errorCodes,
         failedEndpoints,
       };
@@ -114,16 +105,13 @@ export class UserActivitiesParser extends ParserService {
     return errorUsers;
   }
 
+  formatPercentage(success, total) {
+    if (!total) return '0%';
+    return `${((success / total) * 100).toFixed(1)}%`;
+  }
+
   transformSensitiveEndpoints(data) {
     const users = data?.by_user?.buckets || [];
-
-    const formatNumber = (val) =>
-      Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 }).format(val || 0);
-
-    const formatPercentage = (success, total) => {
-      if (!total) return '0%';
-      return `${((success / total) * 100).toFixed(1)}%`;
-    };
 
     const sensitiveAccess = {
       users: users.map((user) => {
@@ -132,7 +120,7 @@ export class UserActivitiesParser extends ParserService {
         const endpoints =
           user.endpoints_accessed?.buckets?.map((ep) => ({
             endpoint: ep.key,
-            count: formatNumber(ep.doc_count),
+            count: this.formatNumber(ep.doc_count),
           })) || [];
 
         const success = user.success_rate?.buckets?.success?.doc_count || 0;
@@ -140,9 +128,9 @@ export class UserActivitiesParser extends ParserService {
 
         return {
           user: user.key,
-          totalAccesses: formatNumber(totalAccesses),
+          totalAccesses: this.formatNumber(totalAccesses),
           endpoints,
-          successRate: formatPercentage(success, total),
+          successRate: this.formatPercentage(success, total),
         };
       }),
     };
@@ -153,14 +141,6 @@ export class UserActivitiesParser extends ParserService {
   transformSuspiciousIPs(data) {
     const buckets = data?.buckets || [];
 
-    const formatNumber = (val) =>
-      Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 }).format(val || 0);
-
-    const formatPercentage = (errors, total) => {
-      if (!total) return '0%';
-      return `${((errors / total) * 100).toFixed(1)}%`;
-    };
-
     const suspiciousIPs = buckets.map((entry) => {
       const totalRequests = entry.doc_count;
       const uniqueUsers = entry.unique_users?.value || 0;
@@ -170,14 +150,14 @@ export class UserActivitiesParser extends ParserService {
       const topEndpoints =
         entry.top_endpoints?.buckets?.map((ep) => ({
           endpoint: ep.key,
-          count: formatNumber(ep.doc_count),
+          count: this.formatNumber(ep.doc_count),
         })) || [];
 
       return {
         ip: entry.key,
-        totalRequests: formatNumber(totalRequests),
-        uniqueUsers: formatNumber(uniqueUsers),
-        errorRate: formatPercentage(errorCount, total),
+        totalRequests: this.formatNumber(totalRequests),
+        uniqueUsers: this.formatNumber(uniqueUsers),
+        errorRate: this.formatPercentage(errorCount, total),
         topEndpoints,
       };
     });
