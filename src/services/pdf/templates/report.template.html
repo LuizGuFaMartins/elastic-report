@@ -733,6 +733,273 @@
           </tbody>
         </table>
       </div>
+
+      <!-- 5. Resumo de Erros -->
+      <div class="section">
+        <h3 class="section-title">5. Resumo de Erros</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Total de Erros</th>
+              <th>Erros Únicos</th>
+              <th>Usuários Afetados</th>
+              <th>Erros Não Tratados</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{{errorReport.summary.totalErrors}}</td>
+              <td>{{errorReport.summary.uniqueErrors}}</td>
+              <td>{{errorReport.summary.affectedUsers}}</td>
+              <td>{{errorReport.summary.unhandledErrors}}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4 style="font-size: 11px; margin-top: 12px">Severidade</h4>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Nível</th>
+              <th>Ocorrências</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each errorReport.summary.severityLevels}}
+            <tr>
+              <td>{{this.level}}</td>
+              <td>{{this.count}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 6. Erros por Serviço -->
+      <div class="section">
+        <h3 class="section-title">6. Erros por Serviço</h3>
+
+        {{#each errorReport.services}}
+        <div style="margin-bottom: 16px">
+          <h4 style="font-size: 11px">{{this.name}} ({{this.environment}})</h4>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Erro</th>
+                <th>Ocorrências</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each this.topErrors}}
+              <tr>
+                <td>{{this.type}}</td>
+                <td>{{this.count}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+        {{/each}}
+      </div>
+
+      <!-- 7. Tipos de Erro -->
+      <div class="section">
+        <h3 class="section-title">7. Tipos de Erro</h3>
+
+        {{#each errorReport.errorTypes}}
+        <div style="margin-bottom: 16px">
+          <h4 style="font-size: 11px">
+            {{this.type}} ({{this.count}} ocorrências)
+          </h4>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Serviço Afetado</th>
+                <th>Ocorrências</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each this.affectedServices}}
+              <tr>
+                <td>{{this.service}}</td>
+                <td>{{this.count}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+        {{/each}}
+      </div>
+
+      <!-- 8. Análise HTTP -->
+      <div class="section">
+        <h3 class="section-title">8. Análise HTTP</h3>
+
+        <div class="two-columns">
+          <div>
+            <h4 style="font-size: 11px">Paths com Erro</h4>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Path</th>
+                  <th>Erros</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{#each errorReport.httpAnalysis.paths}}
+                <tr>
+                  <td>{{this.path}}</td>
+                  <td>{{this.count}}</td>
+                </tr>
+                {{/each}}
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <h4 style="font-size: 11px">Métodos & User Agents</h4>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Método</th>
+                  <th>Ocorrências</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{#each errorReport.httpAnalysis.methods}}
+                <tr>
+                  <td>{{this.method}}</td>
+                  <td>{{this.count}}</td>
+                </tr>
+                {{/each}}
+              </tbody>
+            </table>
+
+            <table class="data-table" style="margin-top: 8px">
+              <thead>
+                <tr>
+                  <th>User Agent</th>
+                  <th>Ocorrências</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{#each errorReport.httpAnalysis.userAgents}}
+                <tr>
+                  <td>{{this.agent}}</td>
+                  <td>{{this.count}}</td>
+                </tr>
+                {{/each}}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 9. Localizações de Erro -->
+      <div class="section">
+        <h3 class="section-title">9. Localizações de Código com Erro</h3>
+
+        {{#each errorReport.errorLocations}}
+        <div style="margin-bottom: 16px">
+          <h4 style="font-size: 11px">
+            {{this.file}} ({{this.total}} ocorrências)
+          </h4>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Função</th>
+                <th>Linha</th>
+                <th>Ocorrências</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each this.functions}}
+              <tr>
+                <td>{{this.name}}</td>
+                <td>
+                  {{lookup ../lines 0 "line"}}
+                  <!-- apenas linha 0 no exemplo -->
+                </td>
+                <td>{{this.count}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+        {{/each}}
+      </div>
+
+      <!-- 10. Infraestrutura -->
+      <div class="section">
+        <h3 class="section-title">10. Infraestrutura</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Instância</th>
+              <th>Provedor</th>
+              <th>Zona</th>
+              <th>Erros</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each errorReport.infrastructure}}
+            <tr>
+              <td>{{this.instance}}</td>
+              <td>{{this.cloudProvider}}</td>
+              <td>{{this.availabilityZone}}</td>
+              <td>{{this.count}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 11. Clientes com Mais Erros -->
+      <div class="section">
+        <h3 class="section-title">11. Clientes com Mais Erros</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>IP</th>
+              <th>Erros</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each errorReport.clientAnalysis}}
+            <tr>
+              <td>{{this.clientIP}}</td>
+              <td>{{this.totalErrors}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 12. Traces com Erro -->
+      <div class="section">
+        <h3 class="section-title">12. Traces com Erros</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Trace</th>
+              <th>Tipo</th>
+              <th>Ocorrências</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each errorReport.traceAnalysis}} {{#each this.transactionTypes}}
+            <tr>
+              <td>{{../trace}}</td>
+              <td>{{this.type}}</td>
+              <td>{{this.count}}</td>
+            </tr>
+            {{/each}} {{/each}}
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <div class="footer">

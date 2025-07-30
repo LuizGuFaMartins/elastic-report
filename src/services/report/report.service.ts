@@ -83,9 +83,9 @@ export class ReportService {
 
       const servicesHealth = this.servicesHealthParser.parse(serviceHealth);
 
-      // const errors = await this.apmQueryService.getApmErrorAnalysis(
-      //   services?.apmServices,
-      // );
+      const errors = await this.apmQueryService.getApmErrorAnalysis(
+        services?.apmServices,
+      );
 
       const data = {
         estatistics: this.estatisticsParser.parse(
