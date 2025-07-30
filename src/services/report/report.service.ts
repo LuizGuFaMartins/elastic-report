@@ -7,6 +7,7 @@ import { ElasticQueryService } from '../elastic/elastic-query.service';
 import { ServicesHealthParser } from '../elastic/parsers/services-health-parser.service';
 import { UserActivitiesParser } from '../elastic/parsers/users-activities-parser.service';
 import { EstatisticsParser } from '../elastic/parsers/estatistics-parser.service';
+import { ApmQueryService } from '../apm/apm-query.service';
 
 @Injectable()
 export class ReportService {
@@ -17,6 +18,7 @@ export class ReportService {
     private readonly estatisticsParser: EstatisticsParser,
     private readonly endpointsParser: EndpointsParser,
     private readonly elasticQueryService: ElasticQueryService,
+    private readonly apmQueryService: ApmQueryService,
     private readonly servicesHealthParser: ServicesHealthParser,
     private readonly userActivitiesParser: UserActivitiesParser,
   ) {
@@ -81,8 +83,9 @@ export class ReportService {
 
       const servicesHealth = this.servicesHealthParser.parse(serviceHealth);
 
-      // const errors =
-      //   await this.elasticQueryService.getErrorAnalysis(serviceName);
+      // const errors = await this.apmQueryService.getApmErrorAnalysis(
+      //   services?.apmServices,
+      // );
 
       const data = {
         estatistics: this.estatisticsParser.parse(
@@ -103,6 +106,7 @@ export class ReportService {
         selectedServices: servicesHealth.filter((s) =>
           services?.elasticServices.includes(s?.name),
         ),
+        // errorReport: errors,
         ...this.userActivitiesParser.parse(userAnalysis),
       };
 

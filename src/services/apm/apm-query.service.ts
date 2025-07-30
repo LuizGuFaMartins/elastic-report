@@ -66,24 +66,24 @@ export class ApmQueryService {
     };
   }
 
-  private getServiceFilter(service: string): any {
+  private getServiceFilter(services: string[]): any {
     return {
       bool: {
         should: [
-          {
-            bool: {
-              should: [
-                {
-                  term: {
-                    software: {
-                      value: service,
+          ...services?.map((service) => {
+            return {
+              bool: {
+                should: [
+                  {
+                    term: {
+                      'service.name': service,
                     },
                   },
-                },
-              ],
-              minimum_should_match: 1,
-            },
-          },
+                ],
+                minimum_should_match: 1,
+              },
+            };
+          }),
         ],
         minimum_should_match: 1,
       },
@@ -116,45 +116,13 @@ export class ApmQueryService {
   }
 
   async getApmErrorAnalysis(
-    serviceName?: string,
+    services?: string[],
     companyId?: string,
     period: 'week' | 'lastWeek' = 'week',
   ) {
-    const filters: any = [this.getDateRangeFilter(period)];
-    if (serviceName) filters.push(this.getServiceFilter(serviceName));
+    const filters: any = [this.getDateRangeFilter(period, '@timestamp')];
+    if (services) filters.push(this.getServiceFilter(services));
     if (companyId) filters.push(this.getCompanyFilter(companyId));
-
-    //     {
-    //   "query": {
-    //     "term": {
-    //       "service.name": "Audit_API"
-    //     }
-    //   }
-    // }
-
-    // {
-    //   "size": 0,
-    //   "query": {
-    //     "bool": {
-    //       "must": [
-    //         {
-    //           "exists": {
-    //             "field": "error"
-    //           }
-    //         }
-    //       ],
-    //       "filter": [
-    //         {
-    //           "range": {
-    //             "@timestamp": {
-    //               "gte": "now-7d",
-    //               "lte": "now"
-    //             }
-    //           }
-    //         }
-    //       ]
-    //     }
-    //   },
 
     const body = {
       size: 0,
@@ -163,7 +131,6 @@ export class ApmQueryService {
           filter: filters,
         },
       },
-
       aggs: {
         errors_over_time: {
           date_histogram: {
@@ -349,90 +316,6 @@ export class ApmQueryService {
 
     return await this.apmHttp.post(
       `/${process.env.ELASTIC_ERROR_LOGS_INDEX}/_search`,
-      body,
-    );
-  }
-
-  async getServiceHealth(
-    companyId?: string,
-    period: 'week' | 'lastWeek' = 'week',
-  ) {
-    const filters = [this.getDateRangeFilter(period)];
-    if (companyId) filters.push(this.getCompanyFilter(companyId));
-
-    const body = {
-      size: 0,
-      query: {
-        bool: {
-          filter: filters,
-        },
-      },
-      aggs: {
-        by_service: {
-          terms: {
-            field: 'software',
-            size: 20,
-          },
-          aggs: {
-            avg_latency: {
-              avg: {
-                field: 'responseTime',
-              },
-            },
-
-            request_count: {
-              value_count: {
-                field: 'requestId',
-              },
-            },
-
-            error_rate: {
-              filters: {
-                filters: {
-                  total: {
-                    match_all: {},
-                  },
-                  errors: {
-                    range: {
-                      statusCode: {
-                        gte: 400,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-
-            daily_trend: {
-              date_histogram: {
-                field: 'dateTime',
-                calendar_interval: 'day',
-                time_zone: this.getTimeData().tz,
-              },
-              aggs: {
-                daily_avg_latency: {
-                  avg: {
-                    field: 'responseTime',
-                  },
-                },
-                daily_errors: {
-                  filter: {
-                    range: {
-                      statusCode: {
-                        gte: 400,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
-    };
-
-    return await this.apmHttp.post(
-      `/${process.env.ELASTIC_REQUEST_LOGS_INDEX}/_search`,
       body,
     );
   }
