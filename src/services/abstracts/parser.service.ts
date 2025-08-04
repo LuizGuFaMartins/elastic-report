@@ -11,18 +11,6 @@ export abstract class ParserService {
     return value.toString();
   }
 
-  // protected formatTime(milliseconds: number): string {
-  //   if (milliseconds >= 3_600_000) {
-  //     return `${(milliseconds / 3_600_000).toFixed(2)}h`;
-  //   } else if (milliseconds >= 60_000) {
-  //     return `${(milliseconds / 60_000).toFixed(2)}min`;
-  //   } else if (milliseconds >= 1_000) {
-  //     return `${(milliseconds / 1_000).toFixed(2)}s`;
-  //   } else {
-  //     return `${milliseconds.toFixed(0)}ms`;
-  //   }
-  // }
-
   protected formatTime(milliseconds: number): string {
     const hours = Math.floor(milliseconds / 3600000);
     const minutes = Math.floor((milliseconds % 3600000) / 60000);

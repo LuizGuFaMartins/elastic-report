@@ -688,55 +688,9 @@
       </div>
       {{/each}}
 
-      <!-- Comparação com os outros serviços -->
+      <!-- Resumo de Erros -->
       <div class="section">
-        <h3 class="section-title">Comparação com os outros serviços</h3>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th style="width: 200px">Serviço</th>
-              <th style="width: 200px">Latência Média</th>
-              <th style="width: 200px">Volume</th>
-              <th style="width: 200px">Taxa Erro</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#each selectedServices}}
-            <tr>
-              <td>{{this.name}}</td>
-              <td>{{this.avgLatency}}</td>
-              <td>{{this.volume}}</td>
-              <td>{{this.errorRate}}</td>
-            </tr>
-            {{/each}}
-          </tbody>
-        </table>
-
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th style="width: 200px">Serviço</th>
-              <th style="width: 200px">Latência Média</th>
-              <th style="width: 200px">Volume</th>
-              <th style="width: 200px">Taxa Erro</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#each services}}
-            <tr>
-              <td>{{this.name}}</td>
-              <td>{{this.avgLatency}}</td>
-              <td>{{this.volume}}</td>
-              <td>{{this.errorRate}}</td>
-            </tr>
-            {{/each}}
-          </tbody>
-        </table>
-      </div>
-
-      <!-- 5. Resumo de Erros -->
-      <div class="section">
-        <h3 class="section-title">5. Resumo de Erros</h3>
+        <h3 class="section-title">Resumo de Erros</h3>
 
         <table class="data-table">
           <thead>
@@ -776,9 +730,9 @@
         </table>
       </div>
 
-      <!-- 6. Erros por Serviço -->
+      <!-- Erros por Serviço -->
       <div class="section">
-        <h3 class="section-title">6. Erros por Serviço</h3>
+        <h3 class="section-title">Erros por Serviço</h3>
 
         {{#each errorReport.services}}
         <div style="margin-bottom: 16px">
@@ -803,9 +757,9 @@
         {{/each}}
       </div>
 
-      <!-- 7. Tipos de Erro -->
+      <!-- Tipos de Erro -->
       <div class="section">
-        <h3 class="section-title">7. Tipos de Erro</h3>
+        <h3 class="section-title">Tipos de Erro</h3>
 
         {{#each errorReport.errorTypes}}
         <div style="margin-bottom: 16px">
@@ -832,9 +786,9 @@
         {{/each}}
       </div>
 
-      <!-- 8. Análise HTTP -->
+      <!-- Análise HTTP -->
       <div class="section">
-        <h3 class="section-title">8. Análise HTTP</h3>
+        <h3 class="section-title">Análise HTTP</h3>
 
         <div class="two-columns">
           <div>
@@ -895,9 +849,9 @@
         </div>
       </div>
 
-      <!-- 9. Localizações de Erro -->
+      <!-- Localizações de Erro -->
       <div class="section">
-        <h3 class="section-title">9. Localizações de Código com Erro</h3>
+        <h3 class="section-title">Localizações de Código com Erro</h3>
 
         {{#each errorReport.errorLocations}}
         <div style="margin-bottom: 16px">
@@ -916,10 +870,7 @@
               {{#each this.functions}}
               <tr>
                 <td>{{this.name}}</td>
-                <td>
-                  {{lookup ../lines 0 "line"}}
-                  <!-- apenas linha 0 no exemplo -->
-                </td>
+                <td>{{lookup (lookup ../lines 0) "line"}}</td>
                 <td>{{this.count}}</td>
               </tr>
               {{/each}}
@@ -929,9 +880,9 @@
         {{/each}}
       </div>
 
-      <!-- 10. Infraestrutura -->
+      <!-- Infraestrutura -->
       <div class="section">
-        <h3 class="section-title">10. Infraestrutura</h3>
+        <h3 class="section-title">Infraestrutura</h3>
 
         <table class="data-table">
           <thead>
@@ -955,9 +906,9 @@
         </table>
       </div>
 
-      <!-- 11. Clientes com Mais Erros -->
+      <!-- Clientes com Mais Erros -->
       <div class="section">
-        <h3 class="section-title">11. Clientes com Mais Erros</h3>
+        <h3 class="section-title">Clientes com Mais Erros</h3>
 
         <table class="data-table">
           <thead>
@@ -977,9 +928,9 @@
         </table>
       </div>
 
-      <!-- 12. Traces com Erro -->
+      <!-- Traces com Erro -->
       <div class="section">
-        <h3 class="section-title">12. Traces com Erros</h3>
+        <h3 class="section-title">Traces com Erros</h3>
 
         <table class="data-table">
           <thead>
@@ -997,6 +948,52 @@
               <td>{{this.count}}</td>
             </tr>
             {{/each}} {{/each}}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Comparação com os outros serviços -->
+      <div class="section">
+        <h3 class="section-title">Comparação com os outros serviços</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 200px">Serviço</th>
+              <th style="width: 200px">Latência Média</th>
+              <th style="width: 200px">Volume</th>
+              <th style="width: 200px">Taxa Erro</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each selectedServices}}
+            <tr>
+              <td>{{this.name}}</td>
+              <td>{{this.avgLatency}}</td>
+              <td>{{this.volume}}</td>
+              <td>{{this.errorRate}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 200px">Serviço</th>
+              <th style="width: 200px">Latência Média</th>
+              <th style="width: 200px">Volume</th>
+              <th style="width: 200px">Taxa Erro</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each services}}
+            <tr>
+              <td>{{this.name}}</td>
+              <td>{{this.avgLatency}}</td>
+              <td>{{this.volume}}</td>
+              <td>{{this.errorRate}}</td>
+            </tr>
+            {{/each}}
           </tbody>
         </table>
       </div>

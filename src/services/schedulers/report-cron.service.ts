@@ -50,24 +50,34 @@ export class ReportCronService {
     this.logger.debug('Finalizando geração de relatório...');
   }
 
-  async generateReportBufferByService(services: {
-    elasticServices: string[];
-    apmServices: string[];
-  }): Promise<{ name: string; buffer: any }> {
+  async generateReportBufferByService(
+    services?:
+      | {
+          elasticServices?: string[];
+          apmServices?: string[];
+        }
+      | any,
+  ): Promise<{ name: string; buffer: any }> {
     const data = await this.reportService.generateHealthReportData(services);
-
-    console.log('data: ', data);
 
     const generationDate = this.dayjs();
 
+    const analisedServices =
+      services?.elasticServices?.length > 0 || services?.apmServices?.length > 0
+        ? 'Serviço(s) analisado(s): ' +
+          process.env.ELASTIC_SERVICES +
+          ' - ' +
+          process.env.APM_SERVICES
+        : null;
+
     const pdfBuffer = await this.pdfService.generateReport({
       companyName: 'ForLogic',
-      // companySubtitle: 'Serviço analisado: ' + this.reportService,
       companyInitials: 'FL',
       companyLogo: this.getLogo(),
       reportPeriod:
         data.period.formatedStartISO + ' - ' + data.period.formatedEndISO,
       generatedDate: generationDate.format('DD/MM/YYYY'),
+      ...(analisedServices && { companySubtitle: analisedServices }),
       ...data,
     });
 

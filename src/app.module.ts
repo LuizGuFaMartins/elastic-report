@@ -17,6 +17,7 @@ import { UserActivitiesParser } from './services/elastic/parsers/users-activitie
 import { EstatisticsParser } from './services/elastic/parsers/estatistics-parser.service';
 import { ApmHttpService } from './services/apm/apm-http.service';
 import { ApmQueryService } from './services/apm/apm-query.service';
+import { ApmErrorsParser } from './services/apm/parsers/apm-errors-parser.service';
 
 @Module({
   controllers: [AppController],
@@ -48,6 +49,7 @@ import { ApmQueryService } from './services/apm/apm-query.service';
     EndpointsParser,
     ServicesHealthParser,
     UserActivitiesParser,
+    ApmErrorsParser,
   ],
 })
 export class AppModule {}

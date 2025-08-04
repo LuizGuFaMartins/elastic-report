@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ParserService } from '../../abstracts/parser-service.interface';
+import { ParserService } from '../../abstracts/parser.service';
 
 @Injectable()
 export class ServicesHealthParser extends ParserService {

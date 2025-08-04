@@ -1,72 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { DayjsService } from '../commom/dayjs.service';
 import { ElasticHttpService } from './elastic-http.service';
+import { QueryService } from '../abstracts/query.service';
 
 @Injectable()
-export class ElasticQueryService {
-  private dayjs: any;
-
+export class ElasticQueryService extends QueryService {
   constructor(
     private readonly elasticHttp: ElasticHttpService,
     private readonly dayjsService: DayjsService,
   ) {
+    super();
     this.dayjs = this.dayjsService.getInstance();
   }
 
-  public getTimeData() {
-    const tz = process.env.ELASTIC_TIMEZONE;
-    const end = this.dayjs().tz(tz);
-    const start = end.subtract(7, 'day');
-    return {
-      startISO: start.toISOString(),
-      endISO: end.toISOString(),
-      startMillis: start.valueOf(),
-      endMillis: end.valueOf(),
-      formatedStartISO: start.format('DD/MM/YYYY'),
-      formatedEndISO: end.format('DD/MM/YYYY'),
-      tz,
-    };
-  }
-
-  public getPreviousWeekTimeData() {
-    const tz = process.env.ELASTIC_TIMEZONE;
-    const end = this.dayjs().tz(tz).subtract(7, 'day');
-    const start = end.subtract(7, 'day');
-    return {
-      startISO: start.toISOString(),
-      endISO: end.toISOString(),
-      startMillis: start.valueOf(),
-      endMillis: end.valueOf(),
-      formatedStartISO: start.format('DD/MM/YYYY'),
-      formatedEndISO: end.format('DD/MM/YYYY'),
-      tz,
-    };
-  }
-
-  public getDateRangeFilter(
-    period?: 'week' | 'lastWeek',
-    field: string = 'dateTime',
-    timeData?: any,
-  ) {
-    if (!period) period = 'week';
-
-    const time: any =
-      timeData || period === 'lastWeek'
-        ? this.getPreviousWeekTimeData()
-        : this.getTimeData();
-
-    return {
-      range: {
-        [field]: {
-          gte: time.startISO,
-          lte: time.endISO,
-          format: 'strict_date_optional_time',
-        },
-      },
-    };
-  }
-
-  private getServiceFilter(services: string[]): any {
+  public getServiceFilter(services: string[]): any {
     return {
       bool: {
         should: [
@@ -92,7 +39,7 @@ export class ElasticQueryService {
     };
   }
 
-  private getCompanyFilter(companyId?: string): any {
+  public getCompanyFilter(companyId?: string): any {
     if (!companyId) return null;
     return {
       bool: {
