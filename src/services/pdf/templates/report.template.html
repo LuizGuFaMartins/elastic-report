@@ -298,9 +298,12 @@
         </div>
       </div>
 
-      <!-- Visão Geral da Performance -->
+      <!-- VISÃO GERAL DA PERFORMANCE -->
+      <h2>VISÃO GERAL DA PERFORMANCE</h2>
+
+      <!-- Estatísticas gerais -->
       <div class="section">
-        <h3 class="section-title">Visão Geral da Performance</h3>
+        <h3 class="section-title">Estatísticas gerais</h3>
         <div class="cards-grid">
           <div class="metric-card">
             <div class="metric-value">{{estatistics.totalRequests}}</div>
@@ -373,6 +376,85 @@
             {{estatistics.peakTrafficHourly}}
           </p>
         </div>
+      </div>
+
+      <!-- Infraestrutura -->
+      <!-- <div class="section">
+        <h3 class="section-title">Infraestrutura</h3>
+      </div>
+
+      <div class="section">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Instância</th>
+              <th>Provedor</th>
+              <th>Zona</th>
+              <th>Erros</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each errorReport.infrastructure}}
+            <tr>
+              <td>{{this.instance}}</td>
+              <td>{{this.cloudProvider}}</td>
+              <td>{{this.availabilityZone}}</td>
+              <td>{{this.count}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div> -->
+
+      <!-- Comparação com os outros serviços -->
+      <div class="section">
+        <h3 class="section-title">Comparação com os outros serviços</h3>
+      </div>
+
+      <!-- <div class="section">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 200px">Serviço</th>
+              <th style="width: 200px">Latência Média</th>
+              <th style="width: 200px">Volume</th>
+              <th style="width: 200px">Taxa Erro</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each selectedServices}}
+            <tr>
+              <td>{{this.name}}</td>
+              <td>{{this.avgLatency}}</td>
+              <td>{{this.volume}}</td>
+              <td>{{this.errorRate}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div> -->
+
+      <div class="section">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 200px">Serviço</th>
+              <th style="width: 200px">Latência Média</th>
+              <th style="width: 200px">Volume</th>
+              <th style="width: 200px">Taxa Erro</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each services}}
+            <tr>
+              <td>{{this.name}}</td>
+              <td>{{this.avgLatency}}</td>
+              <td>{{this.volume}}</td>
+              <td>{{this.errorRate}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
       </div>
 
       <!-- Principais Endpoints -->
@@ -481,6 +563,71 @@
         </div>
       </div>
 
+      <!-- Análise HTTP -->
+      <div class="section">
+        <h3 class="section-title">Análise HTTP</h3>
+      </div>
+
+      <div class="section">
+        <div class="two-columns">
+          <div>
+            <h4 style="font-size: 11px">Paths com Erro</h4>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Path</th>
+                  <th>Erros</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{#each errorReport.httpAnalysis.paths}}
+                <tr>
+                  <td>{{this.path}}</td>
+                  <td>{{this.count}}</td>
+                </tr>
+                {{/each}}
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <h4 style="font-size: 11px">Métodos & User Agents</h4>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Método</th>
+                  <th>Ocorrências</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{#each errorReport.httpAnalysis.methods}}
+                <tr>
+                  <td>{{this.method}}</td>
+                  <td>{{this.count}}</td>
+                </tr>
+                {{/each}}
+              </tbody>
+            </table>
+
+            <table class="data-table" style="margin-top: 8px">
+              <thead>
+                <tr>
+                  <th>User Agent</th>
+                  <th>Ocorrências</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{#each errorReport.httpAnalysis.userAgents}}
+                <tr>
+                  <td>{{this.agent}}</td>
+                  <td>{{this.count}}</td>
+                </tr>
+                {{/each}}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       <!-- Falhas e Erros Críticos -->
       <!-- <div class="section">
         <h3 class="section-title">Falhas e Erros Críticos</h3>
@@ -516,6 +663,9 @@
         </div>
         {{/each}}
       </div> -->
+
+      <!-- COMPORTAMENTO DOS USUÁRIOS -->
+      <h2>COMPORTAMENTO DOS USUÁRIOS</h2>
 
       <!-- Uso por Usuário -->
       <div class="section">
@@ -575,54 +725,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Erros por Usuário -->
-      <div class="section">
-        <h3 class="section-title">Erros por Usuário</h3>
-      </div>
-
-      {{#each errorUsers}}
-      <div class="section">
-        <h4 style="font-size: 11px; margin-bottom: 4px">{{this.user}}</h4>
-        <p style="font-size: 10px; margin-bottom: 4px">
-          Total de Erros: {{this.totalErrors}}
-        </p>
-
-        <table class="data-table" style="margin-bottom: 12px">
-          <thead>
-            <tr>
-              <th>Códigos de Erro</th>
-              <th>Ocorrências</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#each this.errorCodes}}
-            <tr>
-              <td>{{this.code}}</td>
-              <td>{{this.count}}</td>
-            </tr>
-            {{/each}}
-          </tbody>
-        </table>
-
-        <table class="data-table" style="margin-bottom: 20px">
-          <thead>
-            <tr>
-              <th>Endpoints Mais Afetados</th>
-              <th>Ocorrências</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#each this.failedEndpoints}}
-            <tr>
-              <td>{{this.endpoint}}</td>
-              <td>{{this.count}}</td>
-            </tr>
-            {{/each}}
-          </tbody>
-        </table>
-      </div>
-      {{/each}}
 
       <!-- Acessos a Endpoints Sensíveis -->
       <div class="section">
@@ -688,6 +790,9 @@
       </div>
       {{/each}}
 
+      <!-- PRINCIPAIS ERROS -->
+      <h2>PRINCIPAIS ERROS</h2>
+
       <!-- Resumo de Erros -->
       <div class="section">
         <h3 class="section-title">Resumo de Erros</h3>
@@ -726,6 +831,78 @@
             <tr>
               <td>{{this.level}}</td>
               <td>{{this.count}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Erros por Usuário -->
+      <div class="section">
+        <h3 class="section-title">Erros por Usuário</h3>
+      </div>
+
+      {{#each errorUsers}}
+      <div class="section">
+        <h4 style="font-size: 11px; margin-bottom: 4px">{{this.user}}</h4>
+        <p style="font-size: 10px; margin-bottom: 4px">
+          Total de Erros: {{this.totalErrors}}
+        </p>
+
+        <table class="data-table" style="margin-bottom: 12px">
+          <thead>
+            <tr>
+              <th>Códigos de Erro</th>
+              <th>Ocorrências</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each this.errorCodes}}
+            <tr>
+              <td>{{this.code}}</td>
+              <td>{{this.count}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+
+        <table class="data-table" style="margin-bottom: 20px">
+          <thead>
+            <tr>
+              <th>Endpoints Mais Afetados</th>
+              <th>Ocorrências</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each this.failedEndpoints}}
+            <tr>
+              <td>{{this.endpoint}}</td>
+              <td>{{this.count}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+      {{/each}}
+
+      <!-- Clientes com Mais Erros -->
+      <div class="section">
+        <h3 class="section-title">Clientes com Mais Erros</h3>
+      </div>
+
+      <div class="section">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>IP</th>
+              <th>Erros</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each errorReport.clientAnalysis}}
+            <tr>
+              <td>{{this.clientIP}}</td>
+              <td>{{this.totalErrors}}</td>
             </tr>
             {{/each}}
           </tbody>
@@ -792,71 +969,6 @@
         {{/each}}
       </div>
 
-      <!-- Análise HTTP -->
-      <div class="section">
-        <h3 class="section-title">Análise HTTP</h3>
-      </div>
-
-      <div class="section">
-        <div class="two-columns">
-          <div>
-            <h4 style="font-size: 11px">Paths com Erro</h4>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Path</th>
-                  <th>Erros</th>
-                </tr>
-              </thead>
-              <tbody>
-                {{#each errorReport.httpAnalysis.paths}}
-                <tr>
-                  <td>{{this.path}}</td>
-                  <td>{{this.count}}</td>
-                </tr>
-                {{/each}}
-              </tbody>
-            </table>
-          </div>
-          <div>
-            <h4 style="font-size: 11px">Métodos & User Agents</h4>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Método</th>
-                  <th>Ocorrências</th>
-                </tr>
-              </thead>
-              <tbody>
-                {{#each errorReport.httpAnalysis.methods}}
-                <tr>
-                  <td>{{this.method}}</td>
-                  <td>{{this.count}}</td>
-                </tr>
-                {{/each}}
-              </tbody>
-            </table>
-
-            <table class="data-table" style="margin-top: 8px">
-              <thead>
-                <tr>
-                  <th>User Agent</th>
-                  <th>Ocorrências</th>
-                </tr>
-              </thead>
-              <tbody>
-                {{#each errorReport.httpAnalysis.userAgents}}
-                <tr>
-                  <td>{{this.agent}}</td>
-                  <td>{{this.count}}</td>
-                </tr>
-                {{/each}}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
       <!-- Localizações de Erro -->
       <div class="section">
         <h3 class="section-title">Localizações de Código com Erro</h3>
@@ -890,58 +1002,6 @@
         {{/each}}
       </div>
 
-      <!-- Infraestrutura -->
-      <div class="section">
-        <h3 class="section-title">Infraestrutura</h3>
-      </div>
-
-      <div class="section">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Instância</th>
-              <th>Provedor</th>
-              <th>Zona</th>
-              <th>Erros</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#each errorReport.infrastructure}}
-            <tr>
-              <td>{{this.instance}}</td>
-              <td>{{this.cloudProvider}}</td>
-              <td>{{this.availabilityZone}}</td>
-              <td>{{this.count}}</td>
-            </tr>
-            {{/each}}
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Clientes com Mais Erros -->
-      <div class="section">
-        <h3 class="section-title">Clientes com Mais Erros</h3>
-      </div>
-
-      <div class="section">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>IP</th>
-              <th>Erros</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#each errorReport.clientAnalysis}}
-            <tr>
-              <td>{{this.clientIP}}</td>
-              <td>{{this.totalErrors}}</td>
-            </tr>
-            {{/each}}
-          </tbody>
-        </table>
-      </div>
-
       <!-- Traces com Erro -->
       <div class="section">
         <h3 class="section-title">Traces com Erros</h3>
@@ -964,57 +1024,6 @@
               <td>{{this.count}}</td>
             </tr>
             {{/each}} {{/each}}
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Comparação com os outros serviços -->
-      <div class="section">
-        <h3 class="section-title">Comparação com os outros serviços</h3>
-      </div>
-
-      <div class="section">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th style="width: 200px">Serviço</th>
-              <th style="width: 200px">Latência Média</th>
-              <th style="width: 200px">Volume</th>
-              <th style="width: 200px">Taxa Erro</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#each selectedServices}}
-            <tr>
-              <td>{{this.name}}</td>
-              <td>{{this.avgLatency}}</td>
-              <td>{{this.volume}}</td>
-              <td>{{this.errorRate}}</td>
-            </tr>
-            {{/each}}
-          </tbody>
-        </table>
-      </div>
-
-      <div class="section">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th style="width: 200px">Serviço</th>
-              <th style="width: 200px">Latência Média</th>
-              <th style="width: 200px">Volume</th>
-              <th style="width: 200px">Taxa Erro</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#each services}}
-            <tr>
-              <td>{{this.name}}</td>
-              <td>{{this.avgLatency}}</td>
-              <td>{{this.volume}}</td>
-              <td>{{this.errorRate}}</td>
-            </tr>
-            {{/each}}
           </tbody>
         </table>
       </div>

@@ -41,7 +41,7 @@ export class ReportCronService {
       await this.generateReportBufferByService(services);
 
     await this.saveReportAsFile(pdfReport);
-    // await this.sendReportEmail(pdfReport)
+    await this.sendReportEmail(pdfReport)
 
     this.logger.debug('Finalizando geração de relatório...');
   }
