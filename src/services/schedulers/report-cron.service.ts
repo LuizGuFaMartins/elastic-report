@@ -33,12 +33,8 @@ export class ReportCronService {
     this.logger.debug('Iniciando geração de relatório...');
 
     const services = {
-      elasticServices: process.env.ELASTIC_SERVICES?.split(',') || [
-        QualiexElasticServices.QualiexAudit,
-      ],
-      apmServices: process.env.APM_SERVICES?.split(',') || [
-        QualiexApmServices.Audit_API,
-      ],
+      elasticServices: process.env.ELASTIC_SERVICES?.split(','),
+      apmServices: process.env.APM_SERVICES?.split(','),
     };
 
     const pdfReport: { name: string; buffer: any } =
@@ -81,7 +77,7 @@ export class ReportCronService {
       ...data,
     });
 
-    const fileName = `./relatorio-${services?.elasticServices?.[0]?.trim().toLocaleLowerCase()}-${generationDate.format('DD-MM-YYYY')}.pdf`;
+    const fileName = `./relatorio-${services?.elasticServices?.[0]?.trim().toLocaleLowerCase() || 'performance-qualiex'}-${generationDate.format('DD-MM-YYYY')}.pdf`;
 
     return {
       name: fileName,

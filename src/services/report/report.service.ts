@@ -35,81 +35,81 @@ export class ReportService {
     companyId?: string,
   ) {
     try {
-      // const estatistics = await this.elasticQueryService.getOverviewEstatistics(
-      //   services?.elasticServices,
-      //   companyId,
-      // );
+      const estatistics = await this.elasticQueryService.getOverviewEstatistics(
+        services?.elasticServices,
+        companyId,
+      );
 
-      // const topLatencyEndpoints =
-      //   await this.elasticQueryService.getTopEndpointsByLatency(
-      //     services?.elasticServices,
-      //     companyId,
-      //   );
+      const topLatencyEndpoints =
+        await this.elasticQueryService.getTopEndpointsByLatency(
+          services?.elasticServices,
+          companyId,
+        );
 
-      // const topErrorEndpoints =
-      //   await this.elasticQueryService.getTopEndpointsByErrors(
-      //     services?.elasticServices,
-      //     companyId,
-      //   );
+      const topErrorEndpoints =
+        await this.elasticQueryService.getTopEndpointsByErrors(
+          services?.elasticServices,
+          companyId,
+        );
 
-      // const lastWeekEstatistics =
-      //   await this.elasticQueryService.getOverviewEstatistics(
-      //     services?.elasticServices,
-      //     companyId,
-      //     'lastWeek',
-      //   );
+      const lastWeekEstatistics =
+        await this.elasticQueryService.getOverviewEstatistics(
+          services?.elasticServices,
+          companyId,
+          'lastWeek',
+        );
 
-      // const lastWeekTopLatencyEndpoints =
-      //   await this.elasticQueryService.getTopEndpointsByLatency(
-      //     services?.elasticServices,
-      //     companyId,
-      //     5,
-      //     'lastWeek',
-      //   );
+      const lastWeekTopLatencyEndpoints =
+        await this.elasticQueryService.getTopEndpointsByLatency(
+          services?.elasticServices,
+          companyId,
+          5,
+          'lastWeek',
+        );
 
-      // const lastWeekTopErrorEndpoints =
-      //   await this.elasticQueryService.getTopEndpointsByErrors(
-      //     services?.elasticServices,
-      //     companyId,
-      //     5,
-      //     'lastWeek',
-      //   );
+      const lastWeekTopErrorEndpoints =
+        await this.elasticQueryService.getTopEndpointsByErrors(
+          services?.elasticServices,
+          companyId,
+          5,
+          'lastWeek',
+        );
 
-      // const userAnalysis = await this.elasticQueryService.getUserAnalysis(
-      //   services?.elasticServices,
-      //   companyId,
-      // );
+      const userAnalysis = await this.elasticQueryService.getUserAnalysis(
+        services?.elasticServices,
+        companyId,
+      );
 
-      // const serviceHealth =
-      //   await this.elasticQueryService.getServiceHealth(companyId);
+      const serviceHealth =
+        await this.elasticQueryService.getServiceHealth(companyId);
 
-      // const servicesHealth = this.servicesHealthParser.parse(serviceHealth);
+      const servicesHealth = this.servicesHealthParser.parse(serviceHealth);
 
       const errors = await this.apmQueryService.getApmErrorAnalysis(
         services?.apmServices,
       );
 
       const data = {
-        // estatistics: this.estatisticsParser.parse(
-        //   estatistics,
-        //   lastWeekEstatistics,
-        // ),
-        // endpoints: this.endpointsParser.parse({
-        //   highestLatency: topLatencyEndpoints,
-        //   highestErrors: topErrorEndpoints,
-        // }),
-        // lastWeekEndpoints: this.endpointsParser.parse({
-        //   highestLatency: lastWeekTopLatencyEndpoints,
-        //   highestErrors: lastWeekTopErrorEndpoints,
-        // }),
-        // services: servicesHealth.filter(
-        //   (s) => !services?.elasticServices?.includes(s?.name),
-        // ),
-        // selectedServices: servicesHealth.filter((s) =>
-        //   services?.elasticServices?.includes(s?.name),
-        // ),
+        estatistics: this.estatisticsParser.parse(
+          estatistics,
+          lastWeekEstatistics,
+        ),
+        endpoints: this.endpointsParser.parse({
+          highestLatency: topLatencyEndpoints,
+          highestErrors: topErrorEndpoints,
+        }),
+        lastWeekEndpoints: this.endpointsParser.parse({
+          highestLatency: lastWeekTopLatencyEndpoints,
+          highestErrors: lastWeekTopErrorEndpoints,
+        }),
+        services: servicesHealth.filter(
+          (s) => !services?.elasticServices?.includes(s?.name),
+        ),
+        selectedServices: servicesHealth.filter((s) =>
+          services?.elasticServices?.includes(s?.name),
+        ),
         errorReport: this.apmErrorsParser.parse(errors),
-        // ...this.userActivitiesParser.parse(userAnalysis),
+        ...this.userActivitiesParser.parse(userAnalysis),
       };
 
       return {

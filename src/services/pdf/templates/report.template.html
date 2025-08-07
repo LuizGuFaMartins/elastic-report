@@ -691,7 +691,9 @@
       <!-- Resumo de Erros -->
       <div class="section">
         <h3 class="section-title">Resumo de Erros</h3>
+      </div>
 
+      <div class="section">
         <table class="data-table">
           <thead>
             <tr>
@@ -733,7 +735,9 @@
       <!-- Erros por Serviço -->
       <div class="section">
         <h3 class="section-title">Erros por Serviço</h3>
+      </div>
 
+      <div class="section">
         {{#each errorReport.services}}
         <div style="margin-bottom: 16px">
           <h4 style="font-size: 11px">{{this.name}} ({{this.environment}})</h4>
@@ -760,7 +764,9 @@
       <!-- Tipos de Erro -->
       <div class="section">
         <h3 class="section-title">Tipos de Erro</h3>
+      </div>
 
+      <div class="section">
         {{#each errorReport.errorTypes}}
         <div style="margin-bottom: 16px">
           <h4 style="font-size: 11px">
@@ -789,7 +795,9 @@
       <!-- Análise HTTP -->
       <div class="section">
         <h3 class="section-title">Análise HTTP</h3>
+      </div>
 
+      <div class="section">
         <div class="two-columns">
           <div>
             <h4 style="font-size: 11px">Paths com Erro</h4>
@@ -852,7 +860,9 @@
       <!-- Localizações de Erro -->
       <div class="section">
         <h3 class="section-title">Localizações de Código com Erro</h3>
+      </div>
 
+      <div class="section">
         {{#each errorReport.errorLocations}}
         <div style="margin-bottom: 16px">
           <h4 style="font-size: 11px">
@@ -883,7 +893,9 @@
       <!-- Infraestrutura -->
       <div class="section">
         <h3 class="section-title">Infraestrutura</h3>
+      </div>
 
+      <div class="section">
         <table class="data-table">
           <thead>
             <tr>
@@ -909,7 +921,9 @@
       <!-- Clientes com Mais Erros -->
       <div class="section">
         <h3 class="section-title">Clientes com Mais Erros</h3>
+      </div>
 
+      <div class="section">
         <table class="data-table">
           <thead>
             <tr>
@@ -931,7 +945,9 @@
       <!-- Traces com Erro -->
       <div class="section">
         <h3 class="section-title">Traces com Erros</h3>
+      </div>
 
+      <div class="section">
         <table class="data-table">
           <thead>
             <tr>
@@ -955,6 +971,9 @@
       <!-- Comparação com os outros serviços -->
       <div class="section">
         <h3 class="section-title">Comparação com os outros serviços</h3>
+      </div>
+
+      <div class="section">
         <table class="data-table">
           <thead>
             <tr>
@@ -975,7 +994,9 @@
             {{/each}}
           </tbody>
         </table>
+      </div>
 
+      <div class="section">
         <table class="data-table">
           <thead>
             <tr>
