@@ -40,8 +40,8 @@ export class ReportCronService {
     const pdfReport: { name: string; buffer: any } =
       await this.generateReportBufferByService(services);
 
-    await this.saveReportAsFile(pdfReport);
-    await this.sendReportEmail(pdfReport)
+    // await this.saveReportAsFile(pdfReport);
+    await this.sendReportEmail(pdfReport);
 
     this.logger.debug('Finalizando geração de relatório...');
   }
@@ -58,13 +58,10 @@ export class ReportCronService {
 
     const generationDate = this.dayjs();
 
-    const analisedServices =
-      services?.elasticServices?.length > 0 || services?.apmServices?.length > 0
-        ? 'Serviço(s) analisado(s): ' +
-          process.env.ELASTIC_SERVICES +
-          ' - ' +
-          process.env.APM_SERVICES
-        : null;
+    const analisedServices = process.env.REPORT_MODULE_NAME
+      ? 'Serviço(s) analisado(s): ' +
+        process.env.REPORT_MODULE_NAME.replace(',', ', ')
+      : null;
 
     const pdfBuffer = await this.pdfService.generateReport({
       companyName: 'ForLogic',
@@ -77,7 +74,12 @@ export class ReportCronService {
       ...data,
     });
 
-    const fileName = `./relatorio-${services?.elasticServices?.[0]?.trim().toLocaleLowerCase() || 'performance-qualiex'}-${generationDate.format('DD-MM-YYYY')}.pdf`;
+    const service =
+      process.env.REPORT_MODULE_NAME?.split(',')?.[0]
+        ?.trim()
+        ?.toLocaleLowerCase() || 'qualiex';
+
+    const fileName = `relatorio-performance-${service}-${generationDate.format('DD-MM-YYYY')}.pdf`;
 
     return {
       name: fileName,
@@ -92,7 +94,7 @@ export class ReportCronService {
   }
 
   async saveReportAsFile(pdfReport: { name: string; buffer: any }) {
-    this.pdfService.saveFile(pdfReport.name, pdfReport.buffer);
+    this.pdfService.saveFile(`./${pdfReport.name}`, pdfReport.buffer);
   }
 
   public getLogo() {
