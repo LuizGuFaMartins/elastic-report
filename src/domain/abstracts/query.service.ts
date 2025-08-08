@@ -7,7 +7,7 @@ export abstract class QueryService {
   public getTimeData() {
     const tz = process.env.ELASTIC_TIMEZONE;
     const end = this.dayjs().tz(tz);
-    const finalDay = +(process.env.REPORT_DAYS || '7');
+    const finalDay = +(process.env.REPORT_INTERVAL_DAYS || '7');
     const start = end.subtract(finalDay, 'day');
     return {
       startISO: start.toISOString(),

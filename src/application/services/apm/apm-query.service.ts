@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { DayjsService } from '../commom/dayjs.service';
 import { ApmHttpService } from './apm-http.service';
-import { QueryService } from '../abstracts/query.service';
+import { DayjsService } from 'src/domain/commom/dayjs.service';
+import { QueryService } from 'src/domain/abstracts/query.service';
 
 @Injectable()
 export class ApmQueryService extends QueryService {
@@ -262,7 +262,7 @@ export class ApmQueryService extends QueryService {
     };
 
     return await this.apmHttp.post(
-      `/${process.env.ELASTIC_ERROR_LOGS_INDEX}/_search`,
+      `/${process.env.APM_ERROR_LOGS_INDEX}/_search`,
       body,
     );
   }

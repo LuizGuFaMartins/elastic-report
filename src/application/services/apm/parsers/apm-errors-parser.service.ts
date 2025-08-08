@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ParserService } from '../../abstracts/parser.service';
+import { ParserService } from '../../../../domain/abstracts/parser.service';
 
 @Injectable()
 export class ApmErrorsParser extends ParserService {

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { DayjsService } from '../commom/dayjs.service';
 import { ElasticHttpService } from './elastic-http.service';
-import { QueryService } from '../abstracts/query.service';
+import { DayjsService } from 'src/domain/commom/dayjs.service';
+import { QueryService } from 'src/domain/abstracts/query.service';
 
 @Injectable()
 export class ElasticQueryService extends QueryService {

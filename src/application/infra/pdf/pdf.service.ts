@@ -45,4 +45,12 @@ export class PdfService {
     fs.writeFileSync(filePath, buffer);
     this.logger.debug(`Relatório salvo em ${filePath}.`);
   }
+
+  public getLogo() {
+    const logoFile = fs.readFileSync(
+      'C:/projetos/telemetria/src/assets/forlogic-logo.png',
+    );
+    const logoBase64 = logoFile.toString('base64');
+    return `data:image/png;base64,${logoBase64}`;
+  }
 }
