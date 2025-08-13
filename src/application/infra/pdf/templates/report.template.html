@@ -8,6 +8,7 @@
       @page {
         size: A4;
         margin: 8mm;
+        margin-bottom: 26mm;
       }
 
       * {
@@ -888,9 +889,7 @@
       <!-- Clientes com Mais Erros -->
       <div class="section">
         <h3 class="section-title">Clientes com Mais Erros</h3>
-      </div>
 
-      <div class="section">
         <table class="data-table">
           <thead>
             <tr>
@@ -912,9 +911,6 @@
       <!-- Erros por Serviço -->
       <div class="section">
         <h3 class="section-title">Erros por Serviço</h3>
-      </div>
-
-      <div class="section">
         {{#each errorReport.services}}
         <div style="margin-bottom: 16px">
           <h4 style="font-size: 11px">{{this.name}} ({{this.environment}})</h4>
