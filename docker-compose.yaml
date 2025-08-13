@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  nest-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: qualiex-report-cron
+    env_file:
+      - .env
+    ports:
+      - "${PORT:-3000}:3000"
+    restart: always

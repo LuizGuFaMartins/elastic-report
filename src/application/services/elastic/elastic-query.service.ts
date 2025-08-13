@@ -1,0 +1,609 @@
+import { Injectable } from '@nestjs/common';
+import { ElasticHttpService } from './elastic-http.service';
+import { DayjsService } from 'src/domain/commom/dayjs.service';
+import { QueryService } from 'src/domain/abstracts/query.service';
+
+@Injectable()
+export class ElasticQueryService extends QueryService {
+  constructor(
+    private readonly elasticHttp: ElasticHttpService,
+    private readonly dayjsService: DayjsService,
+  ) {
+    super();
+    this.dayjs = this.dayjsService.getInstance();
+  }
+
+  public getServiceFilter(services: string[]): any {
+    return {
+      bool: {
+        should: [
+          ...services?.map((service) => {
+            return {
+              bool: {
+                should: [
+                  {
+                    term: {
+                      software: {
+                        value: service,
+                      },
+                    },
+                  },
+                ],
+                minimum_should_match: 1,
+              },
+            };
+          }),
+        ],
+        minimum_should_match: 1,
+      },
+    };
+  }
+
+  public getCompanyFilter(companyId?: string): any {
+    if (!companyId) return null;
+    return {
+      bool: {
+        should: [
+          {
+            bool: {
+              should: [
+                {
+                  term: {
+                    companyId: {
+                      value: companyId,
+                    },
+                  },
+                },
+              ],
+              minimum_should_match: 1,
+            },
+          },
+        ],
+        minimum_should_match: 1,
+      },
+    };
+  }
+
+  async getOverviewEstatistics(
+    services?: string[],
+    companyId?: string,
+    period: 'week' | 'lastWeek' = 'week',
+  ) {
+    const filters = [this.getDateRangeFilter(period)];
+    if (services) filters.push(this.getServiceFilter(services));
+    if (companyId) filters.push(this.getCompanyFilter(companyId));
+
+    const body = {
+      size: 0,
+      query: {
+        bool: {
+          filter: filters,
+        },
+      },
+      aggs: {
+        total_latency: {
+          sum: {
+            field: 'responseTime',
+          },
+        },
+        total_requests: {
+          value_count: {
+            field: 'requestId',
+          },
+        },
+        error_count: {
+          filter: {
+            range: {
+              statusCode: {
+                gte: 400,
+              },
+            },
+          },
+        },
+        success_count: {
+          filter: {
+            range: {
+              statusCode: {
+                gte: 200,
+                lt: 400,
+              },
+            },
+          },
+        },
+        hourly_traffic: {
+          date_histogram: {
+            field: 'dateTime',
+            calendar_interval: 'hour',
+            time_zone: 'America/Sao_Paulo',
+          },
+        },
+        daily_throughput: {
+          date_histogram: {
+            field: 'dateTime',
+            calendar_interval: 'day',
+            time_zone: 'America/Sao_Paulo',
+          },
+        },
+      },
+    };
+
+    return await this.elasticHttp.post(
+      `/${process.env.ELASTIC_REQUEST_LOGS_INDEX}/_search`,
+      body,
+    );
+  }
+
+  async getTopEndpointsByLatency(
+    services?: string[],
+    companyId?: string,
+    size: number = 5,
+    period: 'week' | 'lastWeek' = 'week',
+  ) {
+    const filters = [this.getDateRangeFilter(period)];
+    if (services) filters.push(this.getServiceFilter(services));
+    if (companyId) filters.push(this.getCompanyFilter(companyId));
+
+    const body = {
+      size: 0,
+      query: {
+        bool: {
+          filter: filters,
+        },
+      },
+      aggs: {
+        by_endpoint: {
+          terms: {
+            field: 'urlPath.keyword',
+            size,
+            order: { avg_response_time: 'desc' },
+          },
+          aggs: {
+            avg_response_time: {
+              avg: {
+                field: 'responseTime',
+              },
+            },
+            total_requests: {
+              value_count: {
+                field: 'requestId.keyword',
+              },
+            },
+            by_method: {
+              terms: {
+                field: 'method.keyword',
+                size: 5,
+              },
+            },
+          },
+        },
+      },
+    };
+
+    return await this.elasticHttp.post(
+      `/${process.env.ELASTIC_REQUEST_LOGS_INDEX}/_search`,
+      body,
+    );
+  }
+
+  async getTopEndpointsByErrors(
+    services?: string[],
+    companyId?: string,
+    size: number = 5,
+    period: 'week' | 'lastWeek' = 'week',
+  ) {
+    const filters = [this.getDateRangeFilter(period)];
+    if (services) filters.push(this.getServiceFilter(services));
+    if (companyId) filters.push(this.getCompanyFilter(companyId));
+
+    const body = {
+      size: 0,
+      query: {
+        bool: {
+          filter: filters,
+        },
+      },
+      aggs: {
+        by_endpoint: {
+          filters: {
+            filters: {
+              notStatusCode200: {
+                bool: {
+                  must_not: [
+                    {
+                      term: {
+                        statusCode: {
+                          value: '200',
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+          aggs: {
+            endpoint: {
+              terms: {
+                field: 'urlPath.keyword',
+                size,
+                order: {
+                  _count: 'desc',
+                },
+              },
+              aggs: {
+                by_status: {
+                  terms: {
+                    field: 'statusCode',
+                    size: 5,
+                    order: {
+                      _count: 'desc',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    return await this.elasticHttp.post(
+      `/${process.env.ELASTIC_REQUEST_LOGS_INDEX}/_search`,
+      body,
+    );
+  }
+
+  async getErrorAnalysis(
+    services?: string[],
+    companyId?: string,
+    period: 'week' | 'lastWeek' = 'week',
+  ) {
+    const filters: any = [this.getDateRangeFilter(period)];
+    if (services) filters.push(this.getServiceFilter(services));
+    if (companyId) filters.push(this.getCompanyFilter(companyId));
+
+    const body = {
+      size: 0,
+      query: {
+        bool: {
+          filter: filters,
+        },
+      },
+      aggs: {
+        by_status_code: {
+          terms: {
+            field: 'statusCode',
+            size: 5,
+          },
+          aggs: {
+            by_endpoint: {
+              terms: {
+                field: 'urlPath.keyword',
+                size: 5,
+              },
+            },
+          },
+        },
+
+        error_categories: {
+          filters: {
+            filters: {
+              client_errors: {
+                range: {
+                  statusCode: {
+                    gte: 400,
+                    lt: 500,
+                  },
+                },
+              },
+              server_errors: {
+                range: {
+                  statusCode: {
+                    gte: 500,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    return await this.elasticHttp.post(
+      `/${process.env.ELASTIC_REQUEST_LOGS_INDEX}/_search`,
+      body,
+    );
+  }
+
+  async getServiceHealth(
+    companyId?: string,
+    period: 'week' | 'lastWeek' = 'week',
+  ) {
+    const filters = [this.getDateRangeFilter(period)];
+    if (companyId) filters.push(this.getCompanyFilter(companyId));
+
+    const body = {
+      size: 0,
+      query: {
+        bool: {
+          filter: filters,
+        },
+      },
+      aggs: {
+        by_service: {
+          terms: {
+            field: 'software',
+            size: 20,
+          },
+          aggs: {
+            avg_latency: {
+              avg: {
+                field: 'responseTime',
+              },
+            },
+
+            request_count: {
+              value_count: {
+                field: 'requestId',
+              },
+            },
+
+            error_rate: {
+              filters: {
+                filters: {
+                  total: {
+                    match_all: {},
+                  },
+                  errors: {
+                    range: {
+                      statusCode: {
+                        gte: 400,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+
+            daily_trend: {
+              date_histogram: {
+                field: 'dateTime',
+                calendar_interval: 'day',
+                time_zone: this.getTimeData().tz,
+              },
+              aggs: {
+                daily_avg_latency: {
+                  avg: {
+                    field: 'responseTime',
+                  },
+                },
+                daily_errors: {
+                  filter: {
+                    range: {
+                      statusCode: {
+                        gte: 400,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    return await this.elasticHttp.post(
+      `/${process.env.ELASTIC_REQUEST_LOGS_INDEX}/_search`,
+      body,
+    );
+  }
+
+  async getUserAnalysis(
+    services?: string[],
+    companyId?: string,
+    period: 'week' | 'lastWeek' = 'week',
+  ) {
+    const filters = [this.getDateRangeFilter(period)];
+    if (services) filters.push(this.getServiceFilter(services));
+    if (companyId) filters.push(this.getCompanyFilter(companyId));
+
+    const body = {
+      size: 0,
+      query: {
+        bool: {
+          filter: filters,
+        },
+      },
+      aggs: {
+        top_users: {
+          terms: {
+            field: 'userEmail',
+            size: 5,
+            order: {
+              _count: 'desc',
+            },
+          },
+          aggs: {
+            total_requests: {
+              value_count: {
+                field: 'requestId',
+              },
+            },
+            methods_used: {
+              terms: {
+                field: 'method',
+                size: 5,
+              },
+            },
+            unique_ips: {
+              cardinality: {
+                field: 'remoteIpAddress',
+              },
+            },
+            avg_response_time: {
+              avg: {
+                field: 'responseTime',
+              },
+            },
+            error_count: {
+              filter: {
+                range: {
+                  statusCode: {
+                    gte: 400,
+                  },
+                },
+              },
+            },
+          },
+        },
+        top_error_users: {
+          filter: {
+            range: {
+              statusCode: {
+                gte: 400,
+              },
+            },
+          },
+          aggs: {
+            users: {
+              terms: {
+                field: 'userEmail',
+                size: 5,
+              },
+              aggs: {
+                error_breakdown: {
+                  terms: {
+                    field: 'statusCode',
+                    size: 5,
+                  },
+                },
+                most_failed_endpoints: {
+                  terms: {
+                    field: 'urlPath.keyword',
+                    size: 5,
+                  },
+                },
+              },
+            },
+          },
+        },
+        suspicious_ips: {
+          terms: {
+            field: 'remoteIpAddress',
+            size: 3,
+            min_doc_count: 1000,
+          },
+          aggs: {
+            unique_users: {
+              cardinality: {
+                field: 'userEmail',
+              },
+            },
+            request_pattern: {
+              date_histogram: {
+                field: 'dateTime',
+                calendar_interval: 'hour',
+                time_zone: 'America/Sao_Paulo',
+              },
+            },
+            error_rate: {
+              filters: {
+                filters: {
+                  total: {
+                    match_all: {},
+                  },
+                  errors: {
+                    range: {
+                      statusCode: {
+                        gte: 400,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            top_endpoints: {
+              terms: {
+                field: 'urlPath.keyword',
+                size: 5,
+              },
+            },
+          },
+        },
+        sensitive_endpoints_access: {
+          filter: {
+            bool: {
+              should: [
+                {
+                  wildcard: {
+                    urlPath: '*admin*',
+                  },
+                },
+                {
+                  wildcard: {
+                    urlPath: '*password*',
+                  },
+                },
+                {
+                  wildcard: {
+                    urlPath: '*auth*',
+                  },
+                },
+                {
+                  wildcard: {
+                    urlPath: '*login*',
+                  },
+                },
+                {
+                  wildcard: {
+                    urlPath: '*user*',
+                  },
+                },
+              ],
+              minimum_should_match: 1,
+            },
+          },
+          aggs: {
+            by_user: {
+              terms: {
+                field: 'userEmail',
+                size: 3,
+              },
+              aggs: {
+                endpoints_accessed: {
+                  terms: {
+                    field: 'urlPath.keyword',
+                    size: 5,
+                  },
+                },
+                success_rate: {
+                  filters: {
+                    filters: {
+                      total: {
+                        match_all: {},
+                      },
+                      success: {
+                        range: {
+                          statusCode: {
+                            gte: 200,
+                            lt: 400,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    return await this.elasticHttp.post(
+      `/${process.env.ELASTIC_REQUEST_LOGS_INDEX}/_search`,
+      body,
+    );
+  }
+}

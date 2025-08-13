@@ -1,26 +1,29 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { HttpModule } from '@nestjs/axios';
-import { ElasticHttpService } from './services/elastic/elastic-http.service';
 import { ConfigModule } from '@nestjs/config';
-import { ReportCronService } from './services/schedulers/report-cron.service';
-import { MailService } from './services/mail/mail.service';
-import { PdfService } from './services/pdf/pdf.service';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { DayjsService } from './services/commom/dayjs.service';
-import { ReportService } from './services/report/report.service';
-import { OverviewParser } from './services/elastic/parsers/overview-parser.service';
-import { EndpointsParser } from './services/elastic/parsers/endpoints-parser.service';
-import { ElasticQueryService } from './services/elastic/elastic-query.service';
-import { ServicesHealthParser } from './services/elastic/parsers/services-health-parser.service';
-import { UserActivitiesParser } from './services/elastic/parsers/users-activities-parser.service';
-import { EstatisticsParser } from './services/elastic/parsers/estatistics-parser.service';
-import { ApmHttpService } from './services/apm/apm-http.service';
-import { ApmQueryService } from './services/apm/apm-query.service';
+import { DayjsService } from './domain/commom/dayjs.service';
+import { ReportService } from './application/services/report/report.service';
+import { ReportCronService } from './application/schedulers/report-cron.service';
+import { ApmHttpService } from './application/services/apm/apm-http.service';
+import { ApmQueryService } from './application/services/apm/apm-query.service';
+import { ElasticHttpService } from './application/services/elastic/elastic-http.service';
+import { ElasticQueryService } from './application/services/elastic/elastic-query.service';
+import { MailService } from './application/infra/mail/mail.service';
+import { PdfService } from './application/infra/pdf/pdf.service';
+import { OverviewParser } from './application/services/elastic/parsers/overview-parser.service';
+import { EstatisticsParser } from './application/services/elastic/parsers/estatistics-parser.service';
+import { EndpointsParser } from './application/services/elastic/parsers/endpoints-parser.service';
+import { ServicesHealthParser } from './application/services/elastic/parsers/services-health-parser.service';
+import { UserActivitiesParser } from './application/services/elastic/parsers/users-activities-parser.service';
+import { ApmErrorsParser } from './application/services/apm/parsers/apm-errors-parser.service';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   controllers: [AppController],
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot(),
     MailerModule.forRoot({
       transport: {
@@ -48,6 +51,7 @@ import { ApmQueryService } from './services/apm/apm-query.service';
     EndpointsParser,
     ServicesHealthParser,
     UserActivitiesParser,
+    ApmErrorsParser,
   ],
 })
 export class AppModule {}
