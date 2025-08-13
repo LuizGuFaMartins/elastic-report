@@ -13,7 +13,7 @@ import { ElasticQueryService } from './application/services/elastic/elastic-quer
 import { MailService } from './application/infra/mail/mail.service';
 import { PdfService } from './application/infra/pdf/pdf.service';
 import { OverviewParser } from './application/services/elastic/parsers/overview-parser.service';
-import { EstatisticsParser } from './application/services/elastic/parsers/estatistics-parser.service';
+import { StatisticsParser } from './application/services/elastic/parsers/statistics-parser.service';
 import { EndpointsParser } from './application/services/elastic/parsers/endpoints-parser.service';
 import { ServicesHealthParser } from './application/services/elastic/parsers/services-health-parser.service';
 import { UserActivitiesParser } from './application/services/elastic/parsers/users-activities-parser.service';
@@ -47,7 +47,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     PdfService,
     DayjsService,
     OverviewParser,
-    EstatisticsParser,
+    StatisticsParser,
     EndpointsParser,
     ServicesHealthParser,
     UserActivitiesParser,

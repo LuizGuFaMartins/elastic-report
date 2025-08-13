@@ -64,7 +64,7 @@ export class ElasticQueryService extends QueryService {
     };
   }
 
-  async getOverviewEstatistics(
+  async getOverviewstatistics(
     services?: string[],
     companyId?: string,
     period: 'week' | 'lastWeek' = 'week',
@@ -86,11 +86,16 @@ export class ElasticQueryService extends QueryService {
             field: 'responseTime',
           },
         },
+        avg_latency: {
+          avg: {
+            field: 'responseTime',
+          },
+        },
         total_requests: {
           value_count: {
             field: 'requestId',
           },
-        },
+        },     
         error_count: {
           filter: {
             range: {
@@ -117,11 +122,21 @@ export class ElasticQueryService extends QueryService {
             time_zone: 'America/Sao_Paulo',
           },
         },
+        avg_hourly_traffic: {
+          avg_bucket: {
+            buckets_path: 'hourly_traffic._count',
+          },
+        },
         daily_throughput: {
           date_histogram: {
             field: 'dateTime',
             calendar_interval: 'day',
             time_zone: 'America/Sao_Paulo',
+          },
+        },
+        avg_daily_throughput: {
+          avg_bucket: {
+            buckets_path: 'daily_throughput._count',
           },
         },
       },

@@ -14,8 +14,8 @@ export abstract class QueryService {
       endISO: end.toISOString(),
       startMillis: start.valueOf(),
       endMillis: end.valueOf(),
-      formatedStartISO: start.format('DD/MM/YYYY'),
-      formatedEndISO: end.format('DD/MM/YYYY'),
+      formatedStartISO: start.format('DD/MM/YYYY HH:mm'),
+      formatedEndISO: end.format('DD/MM/YYYY HH:mm'),
       tz,
     };
   }
@@ -29,8 +29,8 @@ export abstract class QueryService {
       endISO: end.toISOString(),
       startMillis: start.valueOf(),
       endMillis: end.valueOf(),
-      formatedStartISO: start.format('DD/MM/YYYY'),
-      formatedEndISO: end.format('DD/MM/YYYY'),
+      formatedStartISO: start.format('DD/MM/YYYY HH:mm'),
+      formatedEndISO: end.format('DD/MM/YYYY HH:mm'),
       tz,
     };
   }

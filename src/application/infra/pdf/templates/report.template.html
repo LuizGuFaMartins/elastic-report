@@ -8,7 +8,6 @@
       @page {
         size: A4;
         margin: 8mm;
-        margin-bottom: 26mm;
       }
 
       * {
@@ -23,6 +22,7 @@
         line-height: 1.4;
         color: #333;
         background: white;
+        margin-bottom: 20px;
       }
 
       .page {
@@ -147,7 +147,7 @@
         color: #dc2626;
       }
       .neutral {
-        color: #6b7280;
+        color: #3266d0;
       }
 
       /* Tables */
@@ -301,80 +301,109 @@
 
       <!-- VISÃO GERAL DA PERFORMANCE -->
       <h2>VISÃO GERAL DA PERFORMANCE</h2>
-
+      <p>Comparação realizada com a semana anterior</p>
       <!-- Estatísticas gerais -->
       <div class="section">
         <h3 class="section-title">Estatísticas gerais</h3>
         <div class="cards-grid">
           <div class="metric-card">
-            <div class="metric-value">{{estatistics.totalRequests}}</div>
+            <div class="metric-value">
+              {{statistics.currentWeek.totalRequests}}
+            </div>
             <div class="metric-label">Total de Requisições</div>
-            <div class="metric-change {{estatistics.requestsTrend}}">
-              {{estatistics.requestsChange}}
+            <div class="metric-change {{statistics.requestsTrend}}">
+              {{statistics.requestsChange}}
             </div>
           </div>
           <div class="metric-card">
-            <div class="metric-value">{{estatistics.totalLatency}}</div>
-            <div class="metric-label">Latência Total</div>
-            <div class="metric-change {{estatistics.latencyTrend}}">
-              {{estatistics.latencyChange}}
+            <div class="metric-value">
+              {{statistics.currentWeek.throughput}}
             </div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-value">{{estatistics.avgLatency}}ms</div>
-            <div class="metric-label">Latência Média</div>
-            <div class="metric-change {{estatistics.avgLatencyTrend}}">
-              {{estatistics.avgLatencyChange}}
-            </div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-value">{{estatistics.throughput}}</div>
             <div class="metric-label">Throughput</div>
-            <div class="metric-change {{estatistics.throughputTrend}}">
-              {{estatistics.throughputChange}}
+            <div class="metric-change {{statistics.throughputTrend}}">
+              {{statistics.throughputChange}}
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">
+              {{statistics.currentWeek.totalLatency}}
+            </div>
+            <div class="metric-label">Latência Total</div>
+            <div class="metric-change {{statistics.latencyTrend}}">
+              {{statistics.latencyChange}}
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">
+              {{statistics.currentWeek.avgLatency}}ms
+            </div>
+            <div class="metric-label">Latência Média</div>
+            <div class="metric-change {{statistics.avgLatencyTrend}}">
+              {{statistics.avgLatencyChange}}
             </div>
           </div>
         </div>
 
         <div class="cards-grid">
           <div class="metric-card">
-            <div class="metric-value">{{estatistics.totalSuccess}}</div>
+            <div class="metric-value">
+              {{statistics.currentWeek.totalSuccess}}
+            </div>
             <div class="metric-label">Requisições Bem-sucedidas</div>
-            <div class="metric-change {{estatistics.successTrend}}">
-              {{estatistics.successChange}}
+            <div class="metric-change {{statistics.totalSuccessTrend}}">
+              {{statistics.totalSuccessChange}}
             </div>
           </div>
           <div class="metric-card">
-            <div class="metric-value">{{estatistics.successRate}}%</div>
-            <div class="metric-label">Taxa de Sucesso</div>
-            <div class="metric-change {{estatistics.successTrend}}">
-              {{estatistics.successChange}}
+            <div class="metric-value">
+              {{statistics.currentWeek.totalErrors}}
             </div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-value">{{estatistics.totalErrors}}</div>
             <div class="metric-label">Total de Erros</div>
-            <div class="metric-change {{estatistics.errorTrend}}">
-              {{estatistics.errorChange}}
+            <div class="metric-change {{statistics.totalErrorTrend}}">
+              {{statistics.totalErrorChange}}
             </div>
           </div>
           <div class="metric-card">
-            <div class="metric-value">{{estatistics.errorRate}}%</div>
+            <div class="metric-value">
+              {{statistics.currentWeek.successRate}}%
+            </div>
+            <div class="metric-label">Taxa de Sucesso</div>
+            <div class="metric-change {{statistics.successTrend}}">
+              {{statistics.successChange}}
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">
+              {{statistics.currentWeek.errorRate}}%
+            </div>
             <div class="metric-label">Taxa de Erro</div>
-            <div class="metric-change {{estatistics.errorTrend}}">
-              {{estatistics.errorChange}}
+            <div class="metric-change {{statistics.errorTrend}}">
+              {{statistics.errorChange}}
             </div>
           </div>
         </div>
 
+        <h3>Semana passada</h3>
         <div class="traffic-info">
           <p>
             <strong>Pico de Tráfego Diário:</strong>
-            {{estatistics.peakTrafficDaily}}
+            {{statistics.lastWeek.peakTrafficDaily}}
           </p>
           <p>
             <strong>Pico de Tráfego por Hora:</strong>
-            {{estatistics.peakTrafficHourly}}
+            {{statistics.lastWeek.peakTrafficHourly}}
+          </p>
+        </div>
+
+        <h3 style="margin-top: 10px">Semana atual</h3>
+        <div class="traffic-info">
+          <p>
+            <strong>Pico de Tráfego Diário:</strong>
+            {{statistics.currentWeek.peakTrafficDaily}}
+          </p>
+          <p>
+            <strong>Pico de Tráfego por Hora:</strong>
+            {{statistics.currentWeek.peakTrafficHourly}}
           </p>
         </div>
       </div>
@@ -407,9 +436,9 @@
         </table>
       </div> -->
 
-      <!-- Comparação com os outros serviços -->
+      <!-- Comparação entre os serviços -->
       <div class="section">
-        <h3 class="section-title">Comparação com os outros serviços</h3>
+        <h3 class="section-title">Comparação entre os serviços</h3>
       </div>
 
       <!-- <div class="section">
@@ -435,6 +464,31 @@
         </table>
       </div> -->
 
+      <h3>Semana passada</h3>
+      <div class="section">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th style="width: 200px">Serviço</th>
+              <th style="width: 200px">Latência Média</th>
+              <th style="width: 200px">Volume</th>
+              <th style="width: 200px">Taxa Erro</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each lastWeekServices}}
+            <tr>
+              <td>{{this.name}}</td>
+              <td>{{this.avgLatency}}</td>
+              <td>{{this.volume}}</td>
+              <td>{{this.errorRate}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Semana atual</h3>
       <div class="section">
         <table class="data-table">
           <thead>

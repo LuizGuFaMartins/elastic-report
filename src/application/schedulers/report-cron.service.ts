@@ -42,8 +42,8 @@ export class ReportCronService implements OnModuleInit {
     const pdfReport: { name: string; buffer: any } =
       await this.reportService.generateReportBufferByService(services);
 
-    // await this.reportService.saveReportAsFile(pdfReport);
-    await this.reportService.sendReportEmail(pdfReport);
+    await this.reportService.saveReportAsFile(pdfReport);
+    // await this.reportService.sendReportEmail(pdfReport);
 
     this.logger.debug('Finalizando geração de relatório...');
   }

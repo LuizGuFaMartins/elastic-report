@@ -2,13 +2,13 @@ export abstract class ParserService {
   abstract parse(data: any, ...args: any[]): any;
 
   protected formatNumber(value: number): string {
-    if (value >= 1_000_000) {
+    if (value >= 1_000_000 || value <= -1_000_000) {
       return `${(value / 1_000_000).toFixed(1)}M`;
     }
-    if (value >= 1_000) {
+    if (value >= 1_000 || value <= -1_000) {
       return `${(value / 1_000).toFixed(1)}k`;
     }
-    return value.toString();
+    return value?.toString();
   }
 
   protected formatTime(milliseconds: number): string {
@@ -24,10 +24,10 @@ export abstract class ParserService {
     if (seconds > 0) parts.push(`${seconds}s`);
     if (milliseconds < 1000 && ms > 0) parts.push(`${ms}ms`);
 
-    return parts.join(' ');
+    return parts?.join(' ');
   }
 
   protected formatPercent(value) {
-    return `${(value * 100).toFixed(2)}%`;
+    return `${(value * 100)?.toFixed(2)}%`;
   }
 }

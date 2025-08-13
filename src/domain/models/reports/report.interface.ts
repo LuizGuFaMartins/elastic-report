@@ -5,7 +5,7 @@ export interface Report {
   companyLogo: null;
   reportPeriod: string;
   generatedDate: string;
-  estatistics: Overview;
+  statistics: Overview;
   overview: Overview;
   endpoints: Endpoints;
   usage: any;

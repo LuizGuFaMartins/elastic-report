@@ -3,13 +3,13 @@ import { EndpointsParser } from '../elastic/parsers/endpoints-parser.service';
 import { ElasticQueryService } from '../elastic/elastic-query.service';
 import { ServicesHealthParser } from '../elastic/parsers/services-health-parser.service';
 import { UserActivitiesParser } from '../elastic/parsers/users-activities-parser.service';
-import { EstatisticsParser } from '../elastic/parsers/estatistics-parser.service';
 import { ApmQueryService } from '../apm/apm-query.service';
 import { ApmErrorsParser } from '../apm/parsers/apm-errors-parser.service';
 import { MailService } from 'src/application/infra/mail/mail.service';
 import { PdfService } from 'src/application/infra/pdf/pdf.service';
 import { DayjsService } from 'src/domain/commom/dayjs.service';
 import { ReportCronService } from 'src/application/schedulers/report-cron.service';
+import { StatisticsParser } from '../elastic/parsers/statistics-parser.service';
 
 @Injectable()
 export class ReportService {
@@ -17,7 +17,7 @@ export class ReportService {
   private dayjs: any;
 
   constructor(
-    private readonly estatisticsParser: EstatisticsParser,
+    private readonly statisticsParser: StatisticsParser,
     private readonly endpointsParser: EndpointsParser,
     private readonly elasticQueryService: ElasticQueryService,
     private readonly apmQueryService: ApmQueryService,
@@ -54,7 +54,7 @@ export class ReportService {
       companyLogo: this.pdfService.getLogo(),
       reportPeriod:
         data.period.formatedStartISO + ' - ' + data.period.formatedEndISO,
-      generatedDate: generationDate.format('DD/MM/YYYY'),
+      generatedDate: generationDate.format('DD/MM/YYYY HH:mm') + 'h',
       ...(analisedServices && { companySubtitle: analisedServices }),
       ...data,
     });
@@ -90,25 +90,13 @@ export class ReportService {
     companyId?: string,
   ) {
     try {
-      const estatistics = await this.elasticQueryService.getOverviewEstatistics(
+      const statistics = await this.elasticQueryService.getOverviewstatistics(
         services?.elasticServices,
         companyId,
       );
 
-      const topLatencyEndpoints =
-        await this.elasticQueryService.getTopEndpointsByLatency(
-          services?.elasticServices,
-          companyId,
-        );
-
-      const topErrorEndpoints =
-        await this.elasticQueryService.getTopEndpointsByErrors(
-          services?.elasticServices,
-          companyId,
-        );
-
-      const lastWeekEstatistics =
-        await this.elasticQueryService.getOverviewEstatistics(
+      const lastWeekstatistics =
+        await this.elasticQueryService.getOverviewstatistics(
           services?.elasticServices,
           companyId,
           'lastWeek',
@@ -122,6 +110,12 @@ export class ReportService {
           'lastWeek',
         );
 
+      const topLatencyEndpoints =
+        await this.elasticQueryService.getTopEndpointsByLatency(
+          services?.elasticServices,
+          companyId,
+        );
+
       const lastWeekTopErrorEndpoints =
         await this.elasticQueryService.getTopEndpointsByErrors(
           services?.elasticServices,
@@ -130,25 +124,35 @@ export class ReportService {
           'lastWeek',
         );
 
-      const userAnalysis = await this.elasticQueryService.getUserAnalysis(
-        services?.elasticServices,
-        companyId,
-      );
+      const topErrorEndpoints =
+        await this.elasticQueryService.getTopEndpointsByErrors(
+          services?.elasticServices,
+          companyId,
+        );
 
       const serviceHealth =
         await this.elasticQueryService.getServiceHealth(companyId);
 
       const servicesHealth = this.servicesHealthParser.parse(serviceHealth);
 
+      const lastWeekServiceHealth =
+        await this.elasticQueryService.getServiceHealth(companyId, 'lastWeek');
+
+      const lastWeekServicesHealth = this.servicesHealthParser.parse(
+        lastWeekServiceHealth,
+      );
+
+      const userAnalysis = await this.elasticQueryService.getUserAnalysis(
+        services?.elasticServices,
+        companyId,
+      );
+
       const errors = await this.apmQueryService.getApmErrorAnalysis(
         services?.apmServices,
       );
 
       const data = {
-        estatistics: this.estatisticsParser.parse(
-          estatistics,
-          lastWeekEstatistics,
-        ),
+        statistics: this.statisticsParser.parse(statistics, lastWeekstatistics),
         endpoints: this.endpointsParser.parse({
           highestLatency: topLatencyEndpoints,
           highestErrors: topErrorEndpoints,
@@ -158,6 +162,9 @@ export class ReportService {
           highestErrors: lastWeekTopErrorEndpoints,
         }),
         services: servicesHealth.filter(
+          (s) => !services?.elasticServices?.includes(s?.name),
+        ),
+        lastWeekServices: lastWeekServicesHealth.filter(
           (s) => !services?.elasticServices?.includes(s?.name),
         ),
         selectedServices: servicesHealth.filter((s) =>
