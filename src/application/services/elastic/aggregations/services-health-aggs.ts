@@ -2,7 +2,7 @@ export const serviceHealthAggs = {
   by_service: {
     terms: {
       field: 'software',
-      size: 13,
+      size: 12,
     },
     aggs: {
       avg_latency: {

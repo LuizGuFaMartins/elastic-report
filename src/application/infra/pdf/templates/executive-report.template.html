@@ -1,0 +1,845 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Relatório Semanal de Saúde da Aplicação</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 8mm;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 11px;
+        line-height: 1.4;
+        color: #333;
+        background: white;
+      }
+
+      .page {
+        width: 210mm;
+        min-height: 297mm;
+        padding: 8mm;
+        margin: 0 auto;
+        background: white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Header */
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 3px solid #2563eb;
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+      }
+
+      .logo-section {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+
+      .logo {
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 18px;
+      }
+
+      .company-info h1 {
+        font-size: 18px;
+        color: #1f2937;
+        margin-bottom: 3px;
+      }
+
+      .company-info p {
+        color: #6b7280;
+        font-size: 10px;
+      }
+
+      .report-info {
+        text-align: right;
+      }
+
+      .report-info h2 {
+        font-size: 16px;
+        color: #2563eb;
+        margin-bottom: 5px;
+      }
+
+      .report-info p {
+        color: #6b7280;
+        font-size: 10px;
+      }
+
+      /* Sections */
+      .section {
+        page-break-inside: avoid;
+      }
+
+      .section-title {
+        margin-top: 20px;
+        background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+        color: #1f2937;
+        padding: 8px 12px;
+        font-size: 13px;
+        font-weight: 600;
+        border-left: 4px solid #2563eb;
+        margin-bottom: 12px;
+      }
+
+      /* Cards Grid */
+      .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 10px;
+        margin-bottom: 15px;
+      }
+
+      .metric-card {
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        padding: 12px 8px;
+        text-align: center;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      .metric-value {
+        font-size: 18px;
+        font-weight: bold;
+        color: #1f2937;
+        margin-bottom: 4px;
+      }
+
+      .metric-label {
+        font-size: 9px;
+        color: #6b7280;
+        text-transform: uppercase;
+      }
+
+      .metric-change {
+        font-size: 8px;
+        margin-top: 3px;
+      }
+
+      .positive {
+        color: #059669;
+      }
+      .negative {
+        color: #dc2626;
+      }
+      .neutral {
+        color: #3266d0;
+      }
+
+      /* Tables */
+      .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 15px;
+        font-size: 10px;
+      }
+
+      .data-table th {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        padding: 6px 8px;
+        text-align: left;
+        font-weight: 600;
+        color: #374151;
+      }
+
+      .data-table td {
+        border: 1px solid #e5e7eb;
+        padding: 6px 8px;
+        vertical-align: top;
+      }
+
+      .data-table tr:nth-child(even) {
+        background: #f9fafb;
+      }
+
+      /* Status indicators */
+      .status-badge {
+        display: inline-block;
+        padding: 2px 6px;
+        border-radius: 3px;
+        font-size: 8px;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .status-success {
+        background: #dcfce7;
+        color: #166534;
+      }
+      .status-warning {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .status-error {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+
+      /* Charts placeholder */
+      .chart-placeholder {
+        background: #f3f4f6;
+        border: 2px dashed #d1d5db;
+        border-radius: 6px;
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6b7280;
+        font-size: 10px;
+        margin-bottom: 10px;
+      }
+
+      .column {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+      }
+
+      /* Two column layout */
+      .two-columns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+
+      /* Error details */
+      .error-item {
+        background: #fef2f2;
+        border-left: 3px solid #ef4444;
+        padding: 8px;
+        margin-bottom: 8px;
+        border-radius: 0 4px 4px 0;
+      }
+
+      .error-title {
+        font-weight: 600;
+        font-size: 10px;
+        color: #991b1b;
+        margin-bottom: 3px;
+      }
+
+      .error-details {
+        font-size: 9px;
+        color: #6b7280;
+      }
+
+      /* Footer */
+      .footer {
+        position: fixed;
+        bottom: 1mm;
+        left: 15mm;
+        right: 15mm;
+        text-align: center;
+        font-size: 8px;
+        color: #9ca3af;
+        border-top: 1px solid #e5e7eb;
+        padding-top: 5px;
+      }
+
+      @media print {
+        .page {
+          box-shadow: none;
+          margin: 0;
+        }
+
+        body {
+          background: white;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="header">
+        <div class="logo-section">
+          <div class="logo">
+            {{#if companyLogo}}
+            <img
+              src="{{companyLogo}}"
+              alt="Logo"
+              style="width: 100%; height: 100%; object-fit: contain"
+            />
+            {{else}} {{companyInitials}} {{/if}}
+          </div>
+          <div class="company-info">
+            <h1>{{companyName}}</h1>
+            <p>{{companySubtitle}}</p>
+          </div>
+        </div>
+        <div class="report-info">
+          <h2>Relatório Semanal de Performance</h2>
+          <p>Período: {{reportPeriod}}</p>
+          <p>Gerado em: {{generatedDate}}</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>VISÃO GERAL DA PERFORMANCE</h2>
+        <p>Comparação realizada com a semana anterior</p>
+
+        <h3 class="section-title">Estatísticas gerais</h3>
+        <div class="cards-grid">
+          <div class="metric-card">
+            <div class="metric-value">
+              {{statistics.currentWeek.totalRequests}}
+            </div>
+            <div class="metric-label">Total de Requisições</div>
+            <div class="metric-change {{statistics.requestsTrend}}">
+              {{statistics.requestsChange}}
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">
+              {{statistics.currentWeek.throughput}}
+            </div>
+            <div class="metric-label">Throughput</div>
+            <div class="metric-change {{statistics.throughputTrend}}">
+              {{statistics.throughputChange}}
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">
+              {{statistics.currentWeek.totalLatency}}
+            </div>
+            <div class="metric-label">Latência Total</div>
+            <div class="metric-change {{statistics.latencyTrend}}">
+              {{statistics.latencyChange}}
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">
+              {{statistics.currentWeek.avgLatency}}ms
+            </div>
+            <div class="metric-label">Latência Média</div>
+            <div class="metric-change {{statistics.avgLatencyTrend}}">
+              {{statistics.avgLatencyChange}}
+            </div>
+          </div>
+        </div>
+
+        <div class="cards-grid">
+          <div class="metric-card">
+            <div class="metric-value">
+              {{statistics.currentWeek.totalSuccess}}
+            </div>
+            <div class="metric-label">Requisições Bem-sucedidas</div>
+            <div class="metric-change {{statistics.totalSuccessTrend}}">
+              {{statistics.totalSuccessChange}}
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">
+              {{statistics.currentWeek.totalErrors}}
+            </div>
+            <div class="metric-label">Total de Erros</div>
+            <div class="metric-change {{statistics.totalErrorTrend}}">
+              {{statistics.totalErrorChange}}
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">
+              {{statistics.currentWeek.successRate}}%
+            </div>
+            <div class="metric-label">Taxa de Sucesso</div>
+            <div class="metric-change {{statistics.successTrend}}">
+              {{statistics.successChange}}
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-value">
+              {{statistics.currentWeek.errorRate}}%
+            </div>
+            <div class="metric-label">Taxa de Erro</div>
+            <div class="metric-change {{statistics.errorTrend}}">
+              {{statistics.errorChange}}
+            </div>
+          </div>
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Semana</th>
+              <th>Pico de Tráfego Diário</th>
+              <th>Pico de Tráfego por Hora:</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Passada</td>
+              <td>{{statistics.lastWeek.peakTrafficDaily}}</td>
+              <td>{{statistics.lastWeek.peakTrafficHourly}}</td>
+            </tr>
+            <tr>
+              <td>Atual</td>
+              <td>{{statistics.currentWeek.peakTrafficDaily}}</td>
+              <td>{{statistics.currentWeek.peakTrafficHourly}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section">
+        <h3 class="section-title">Comparação entre os modulos</h3>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Módulo</th>
+              <th>Latência Média</th>
+              <th>Volume</th>
+              <th>Taxa Erro</th>
+              <th>Pico de trafego</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each services}}
+            <tr>
+              <td>{{this.name}}</td>
+              <td>{{this.avgLatency}}</td>
+              <td>{{this.volume}}</td>
+              <td>{{this.errorRate}}</td>
+              <td>
+                <div>{{this.lastPeakTraffic}} (passada)</div>
+                <div>{{this.currentPeakTraffic}} (atual)</div>
+              </td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>ANÁLISE POR UNIDADES</h2>
+
+        <h3 class="section-title">Tempo de resposta</h3>
+        <h4 style="font-size: 11px; margin-bottom: 8px">Semana passada</h4>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Unidades</th>
+              <th>Tempo Máx. Resposta</th>
+              <th>Tempo Médio Resposta</th>
+              <th>95% dos casos</th>
+              <th>99% dos casos</th>
+              <th>Volume</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each unitsAnalysis.lastWeek}}
+            <tr>
+              <td>{{this.name}}</td>
+              <td>{{this.maxResponseTime}}</td>
+              <td>{{this.avgResponseTime}}</td>
+              <td>{{this.p95}}</td>
+              <td>{{this.p99}}</td>
+              <td>{{this.volume}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section">
+        <h4 style="font-size: 11px; margin-bottom: 8px">Semana atual</h4>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Unidades</th>
+              <th>Tempo Máx. Resposta</th>
+              <th>Tempo Médio Resposta</th>
+              <th>95% dos casos</th>
+              <th>99% dos casos</th>
+              <th>Volume</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each unitsAnalysis.currentWeek}}
+            <tr>
+              <td>{{this.name}}</td>
+              <td>{{this.maxResponseTime}}</td>
+              <td>{{this.avgResponseTime}}</td>
+              <td>{{this.p95}}</td>
+              <td>{{this.p99}}</td>
+              <td>{{this.volume}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section">
+        <h3 class="section-title">Quantidade de erros (APM - Erros 500)</h3>
+        <h4 style="font-size: 11px; margin-bottom: 8px">Semana passada</h4>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Unidade</th>
+              <th>Erros</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each errorsByUnit.lastWeek}}
+            <tr>
+              <td>{{this.name}}</td>
+              <td>{{this.errors}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section">
+        <h4 style="font-size: 11px; margin-bottom: 8px">Semana atual</h4>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Unidade</th>
+              <th>Erros</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each errorsByUnit.currentWeek}}
+            <tr>
+              <td>{{this.name}}</td>
+              <td>{{this.errors}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>ANÁLISE DE ERROS (APM - Erros 500)</h2>
+
+        <h3 class="section-title">Erros por serviço</h3>
+        <h4 style="font-size: 11px; margin-bottom: 8px">Semana passada</h4>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Serviço</th>
+              <th>Erros totais</th>
+              <th>Timeouts</th>
+              <th>Deadlocks</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each errorsByService.lastWeek}}
+            <tr>
+              <td>{{this.name}}</td>
+              <td>{{this.errors}}</td>
+              <td>{{this.timeoutErrors}}</td>
+              <td>{{this.deadlockErrors}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section">
+        <h4 style="font-size: 11px; margin-bottom: 8px">Semana atual</h4>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Serviço</th>
+              <th>Erros totais</th>
+              <th>Timeouts</th>
+              <th>Deadlocks</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each errorsByService.currentWeek}}
+            <tr>
+              <td>{{this.name}}</td>
+              <td>{{this.errors}}</td>
+              <td>{{this.timeoutErrors}}</td>
+              <td>{{this.deadlockErrors}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section">
+        <h2>ANÁLISE DE ENDPOINTS</h2>
+        <h3 class="section-title">Maiores Latências</h3>
+        <h4 style="font-size: 11px; margin-bottom: 8px">Semana passada</h4>
+        <div class="column">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 500px">Endpoint</th>
+                <th>Latência</th>
+                <th>Volume</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each endpoints.lastWeek.highestLatency}}
+              <tr>
+                <td>{{this.name}}</td>
+                <td>{{this.latency}}</td>
+                <td>{{this.volume}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <h4 style="font-size: 11px; margin-bottom: 8px">Semana atual</h4>
+        <div class="column">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 500px">Endpoint</th>
+                <th>Latência</th>
+                <th>Volume</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each endpoints.currentWeek.highestLatency}}
+              <tr>
+                <td>{{this.name}}</td>
+                <td>{{this.latency}}</td>
+                <td>{{this.volume}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3 class="section-title">Maiores Quantidades de Erro</h3>
+        <h4 style="font-size: 11px; margin-bottom: 8px">Semana passada</h4>
+        <div class="column">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 500px">Endpoint</th>
+                <th>Código</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each endpoints.lastWeek.highestErrors}}
+              <tr>
+                <td>{{this.name}}</td>
+                <td>{{this.statusCode}}</td>
+                <td>{{this.totalErrors}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <h4 style="font-size: 11px; margin-bottom: 8px">Semana atual</h4>
+        <div class="column">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width: 500px">Endpoint</th>
+                <th>Código</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{#each endpoints.currentWeek.highestErrors}}
+              <tr>
+                <td>{{this.name}}</td>
+                <td>{{this.statusCode}}</td>
+                <td>{{this.totalErrors}}</td>
+              </tr>
+              {{/each}}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>ANÁLISE DE SEGURANÇA</h2>
+        <p>Relativa a semana atual</p>
+
+        <div class="section">
+          <h3 class="section-title">Análise HTTP</h3>
+
+          <div class="two-columns">
+            <div>
+              <h4 style="font-size: 11px">Paths com Erro</h4>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Path</th>
+                    <th>Erros</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{#each httpAnalysis.paths}}
+                  <tr>
+                    <td>{{this.path}}</td>
+                    <td>{{this.count}}</td>
+                  </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+            </div>
+            <div>
+              <h4 style="font-size: 11px">Métodos & User Agents</h4>
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Método</th>
+                    <th>Ocorrências</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{#each httpAnalysis.methods}}
+                  <tr>
+                    <td>{{this.method}}</td>
+                    <td>{{this.count}}</td>
+                  </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+
+              <table class="data-table" style="margin-top: 8px">
+                <thead>
+                  <tr>
+                    <th>User Agent</th>
+                    <th>Ocorrências</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {{#each httpAnalysis.userAgents}}
+                  <tr>
+                    <td>{{this.agent}}</td>
+                    <td>{{this.count}}</td>
+                  </tr>
+                  {{/each}}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="section-title">Uso por Usuário</h3>
+        <div class="column">
+          <div>
+            <h4 style="font-size: 11px; margin-bottom: 8px">
+              Usuários por Volume
+            </h4>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Usuário/Sistema</th>
+                  <th>Requisições</th>
+                  <!-- <th>% do Total</th> -->
+                </tr>
+              </thead>
+              <tbody>
+                {{#each usage.topUsers}}
+                <tr>
+                  <td>{{this.user}}</td>
+                  <td>{{this.requests}}</td>
+                  <!-- <td>{{this.percentage}}</td> -->
+                </tr>
+                {{/each}}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="column">
+          <div>
+            <h4 style="font-size: 11px; margin-bottom: 8px">
+              Comportamentos Anômalos
+            </h4>
+            {{#each usage.suspiciousActivity}}
+            <div
+              style="
+                background: #fef2f2;
+                border-left: 3px solid #ef4444;
+                padding: 8px;
+                margin-bottom: 6px;
+              "
+            >
+              <div style="font-weight: 600; font-size: 10px; color: #991b1b">
+                {{this.type}}
+              </div>
+              <div style="font-size: 9px; color: #6b7280">{{this.details}}</div>
+              <div style="font-size: 8px; color: #9ca3af">
+                {{this.timestamp}}
+              </div>
+            </div>
+            {{/each}}
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3 class="section-title">IPs Suspeitos</h3>
+      </div>
+
+      {{#each suspiciousIPs}}
+      <div class="section">
+        <h4 style="font-size: 11px; margin-bottom: 4px">IP: {{this.ip}}</h4>
+        <p style="font-size: 10px; margin-bottom: 4px">
+          Requisições: {{this.totalRequests}} | Usuários Únicos:
+          {{this.uniqueUsers}} | Erros: {{this.errorRate}}
+        </p>
+
+        <table class="data-table" style="margin-bottom: 20px">
+          <thead>
+            <tr>
+              <th>Endpoints mais acessados</th>
+              <th>Requisições</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each this.topEndpoints}}
+            <tr>
+              <td>{{this.endpoint}}</td>
+              <td>{{this.count}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+      {{/each}}
+    </div>
+
+    <div class="footer">
+      Relatório gerado automaticamente | {{companyName}} | {{generatedDate}}
+    </div>
+  </body>
+</html>

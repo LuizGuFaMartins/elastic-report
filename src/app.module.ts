@@ -20,6 +20,9 @@ import { UserActivitiesParser } from './application/services/elastic/parsers/use
 import { ApmErrorsParser } from './application/services/apm/parsers/apm-errors-parser.service';
 import { ScheduleModule } from '@nestjs/schedule';
 import { UnitAnalysisParser } from './application/services/elastic/parsers/units-analysis-parser.service';
+import { ApmServicesErrorsParser } from './application/services/apm/parsers/services-errors-parser.service';
+import { ApmUnitErrorsParser } from './application/services/apm/parsers/unit-errors-parser.service';
+import { ApmHttpAnalysisParser } from './application/services/apm/parsers/apm-http-analysis-parser.service';
 
 @Module({
   controllers: [AppController],
@@ -54,6 +57,9 @@ import { UnitAnalysisParser } from './application/services/elastic/parsers/units
     UserActivitiesParser,
     UnitAnalysisParser,
     ApmErrorsParser,
+    ApmServicesErrorsParser,
+    ApmUnitErrorsParser,
+    ApmHttpAnalysisParser,
   ],
 })
 export class AppModule {}

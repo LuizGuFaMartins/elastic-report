@@ -1,6 +1,7 @@
 export abstract class QueryService {
   public dayjs: any;
 
+  abstract buildQueryFilters(data: any): any;
   abstract getServiceFilter(data: any, ...args: any[]): any;
   abstract getCompanyFilter(data: any, ...args: any[]): any;
 
@@ -14,8 +15,8 @@ export abstract class QueryService {
       endISO: end.toISOString(),
       startMillis: start.valueOf(),
       endMillis: end.valueOf(),
-      formatedStartISO: start.format('DD/MM/YYYY HH:mm'),
-      formatedEndISO: end.format('DD/MM/YYYY HH:mm'),
+      formatedStartISO: start.format('DD/MM/YYYY HH:mm') + 'h',
+      formatedEndISO: end.format('DD/MM/YYYY HH:mm') + 'h',
       tz,
     };
   }
@@ -29,8 +30,8 @@ export abstract class QueryService {
       endISO: end.toISOString(),
       startMillis: start.valueOf(),
       endMillis: end.valueOf(),
-      formatedStartISO: start.format('DD/MM/YYYY HH:mm'),
-      formatedEndISO: end.format('DD/MM/YYYY HH:mm'),
+      formatedStartISO: start.format('DD/MM/YYYY HH:mm') + 'h',
+      formatedEndISO: end.format('DD/MM/YYYY HH:mm') + 'h',
       tz,
     };
   }

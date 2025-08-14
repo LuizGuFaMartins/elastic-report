@@ -2,7 +2,7 @@ export const topEndpointsByLatencyAggs = {
   by_endpoint: {
     terms: {
       field: 'urlPath.keyword',
-      size: 5,
+      size: 6,
       order: { avg_response_time: 'desc' },
     },
     aggs: {

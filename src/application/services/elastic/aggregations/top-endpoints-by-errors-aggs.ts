@@ -21,7 +21,7 @@ export const topEndpointsByErrorsAggs = {
       endpoint: {
         terms: {
           field: 'urlPath.keyword',
-          size: 5,
+          size: 6,
           order: {
             _count: 'desc',
           },
@@ -30,7 +30,7 @@ export const topEndpointsByErrorsAggs = {
           by_status: {
             terms: {
               field: 'statusCode',
-              size: 5,
+              size: 6,
               order: {
                 _count: 'desc',
               },

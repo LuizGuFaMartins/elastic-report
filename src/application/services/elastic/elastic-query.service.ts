@@ -9,6 +9,7 @@ import { errorsAnalysisAggs } from './aggregations/errors-analysis-aggs';
 import { serviceHealthAggs } from './aggregations/services-health-aggs';
 import { usersAnalysisAggs } from './aggregations/users-analysis-aggs';
 import { unitsAnalysisAggs } from './aggregations/units-analysis-aggs';
+import { QueryFilter } from 'src/domain/models/dtos/query-filters.interface';
 
 @Injectable()
 export class ElasticQueryService extends QueryService {
@@ -71,21 +72,26 @@ export class ElasticQueryService extends QueryService {
     };
   }
 
-  async getOverviewStatistics(
-    services?: string[],
-    companyId?: string,
-    period: 'week' | 'lastWeek' = 'week',
-  ) {
-    const filters = [this.getDateRangeFilter(period)];
-    if (services) filters.push(this.getServiceFilter(services));
-    if (companyId) filters.push(this.getCompanyFilter(companyId));
+  public buildQueryFilters(filters: QueryFilter) {
+    const query: any = [this.getDateRangeFilter(filters?.period, '@timestamp')];
+    if (filters?.services) query.push(this.getServiceFilter(filters?.services));
+    if (filters?.companyId)
+      query.push(this.getCompanyFilter(filters?.companyId));
+
+    return {
+      bool: {
+        filter: query,
+      },
+    };
+  }
+
+  async getOverviewStatistics(filters: QueryFilter) {
+    const query: any = this.buildQueryFilters(filters);
 
     const body = {
       size: 0,
       query: {
-        bool: {
-          filter: filters,
-        },
+        ...query,
       },
       aggs: {
         ...statisticsAggs,
@@ -98,21 +104,13 @@ export class ElasticQueryService extends QueryService {
     );
   }
 
-  async getTopEndpointsByLatency(
-    services?: string[],
-    companyId?: string,
-    period: 'week' | 'lastWeek' = 'week',
-  ) {
-    const filters = [this.getDateRangeFilter(period)];
-    if (services) filters.push(this.getServiceFilter(services));
-    if (companyId) filters.push(this.getCompanyFilter(companyId));
+  async getTopEndpointsByLatency(filters: QueryFilter) {
+    const query: any = this.buildQueryFilters(filters);
 
     const body = {
       size: 0,
       query: {
-        bool: {
-          filter: filters,
-        },
+        ...query,
       },
       aggs: {
         ...topEndpointsByLatencyAggs,
@@ -125,21 +123,13 @@ export class ElasticQueryService extends QueryService {
     );
   }
 
-  async getTopEndpointsByErrors(
-    services?: string[],
-    companyId?: string,
-    period: 'week' | 'lastWeek' = 'week',
-  ) {
-    const filters = [this.getDateRangeFilter(period)];
-    if (services) filters.push(this.getServiceFilter(services));
-    if (companyId) filters.push(this.getCompanyFilter(companyId));
+  async getTopEndpointsByErrors(filters: QueryFilter) {
+    const query: any = this.buildQueryFilters(filters);
 
     const body = {
       size: 0,
       query: {
-        bool: {
-          filter: filters,
-        },
+        ...query,
       },
       aggs: {
         ...topEndpointsByErrorsAggs,
@@ -152,21 +142,13 @@ export class ElasticQueryService extends QueryService {
     );
   }
 
-  async getErrorAnalysis(
-    services?: string[],
-    companyId?: string,
-    period: 'week' | 'lastWeek' = 'week',
-  ) {
-    const filters: any = [this.getDateRangeFilter(period)];
-    if (services) filters.push(this.getServiceFilter(services));
-    if (companyId) filters.push(this.getCompanyFilter(companyId));
+  async getErrorAnalysis(filters: QueryFilter) {
+    const query: any = this.buildQueryFilters(filters);
 
     const body = {
       size: 0,
       query: {
-        bool: {
-          filter: filters,
-        },
+        ...query,
       },
       aggs: {
         ...errorsAnalysisAggs,
@@ -179,19 +161,13 @@ export class ElasticQueryService extends QueryService {
     );
   }
 
-  async getServicesHealth(
-    companyId?: string,
-    period: 'week' | 'lastWeek' = 'week',
-  ) {
-    const filters = [this.getDateRangeFilter(period)];
-    if (companyId) filters.push(this.getCompanyFilter(companyId));
+  async getServicesHealth(filters: QueryFilter) {
+    const query: any = this.buildQueryFilters(filters);
 
     const body = {
       size: 0,
       query: {
-        bool: {
-          filter: filters,
-        },
+        ...query,
       },
       aggs: {
         ...serviceHealthAggs,
@@ -204,21 +180,13 @@ export class ElasticQueryService extends QueryService {
     );
   }
 
-  async getUserAnalysis(
-    services?: string[],
-    companyId?: string,
-    period: 'week' | 'lastWeek' = 'week',
-  ) {
-    const filters = [this.getDateRangeFilter(period)];
-    if (services) filters.push(this.getServiceFilter(services));
-    if (companyId) filters.push(this.getCompanyFilter(companyId));
+  async getUserAnalysis(filters: QueryFilter) {
+    const query: any = this.buildQueryFilters(filters);
 
     const body = {
       size: 0,
       query: {
-        bool: {
-          filter: filters,
-        },
+        ...query,
       },
       aggs: {
         ...usersAnalysisAggs,
@@ -231,21 +199,13 @@ export class ElasticQueryService extends QueryService {
     );
   }
 
-  async getUnitsAnalysis(
-    services?: string[],
-    companyId?: string,
-    period: 'week' | 'lastWeek' = 'week',
-  ) {
-    const filters = [this.getDateRangeFilter(period)];
-    if (services) filters.push(this.getServiceFilter(services));
-    if (companyId) filters.push(this.getCompanyFilter(companyId));
+  async getUnitsAnalysis(filters: QueryFilter) {
+    const query: any = this.buildQueryFilters(filters);
 
     const body = {
       size: 0,
       query: {
-        bool: {
-          filter: filters,
-        },
+        ...query,
       },
       aggs: {
         ...unitsAnalysisAggs,

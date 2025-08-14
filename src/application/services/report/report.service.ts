@@ -10,6 +10,12 @@ import { PdfService } from 'src/application/infra/pdf/pdf.service';
 import { DayjsService } from 'src/domain/commom/dayjs.service';
 import { ReportCronService } from 'src/application/schedulers/report-cron.service';
 import { StatisticsParser } from '../elastic/parsers/statistics-parser.service';
+import { UnitAnalysisParser } from '../elastic/parsers/units-analysis-parser.service';
+import { QueryFilter } from 'src/domain/models/dtos/query-filters.interface';
+import { ApmServicesErrorsParser } from '../apm/parsers/services-errors-parser.service';
+import { ApmUnitErrorsParser } from '../apm/parsers/unit-errors-parser.service';
+import { unitsAnalysisAggs } from '../elastic/aggregations/units-analysis-aggs';
+import { ApmHttpAnalysisParser } from '../apm/parsers/apm-http-analysis-parser.service';
 
 @Injectable()
 export class ReportService {
@@ -22,8 +28,12 @@ export class ReportService {
     private readonly elasticQueryService: ElasticQueryService,
     private readonly apmQueryService: ApmQueryService,
     private readonly servicesHealthParser: ServicesHealthParser,
+    private readonly unitAnalysisParser: UnitAnalysisParser,
     private readonly userActivitiesParser: UserActivitiesParser,
     private readonly apmErrorsParser: ApmErrorsParser,
+    private readonly apmHttpAnalysisParser: ApmHttpAnalysisParser,
+    private readonly apmServicesErrorsParser: ApmServicesErrorsParser,
+    private readonly apmUnitErrorsParser: ApmUnitErrorsParser,
     private readonly pdfService: PdfService,
     private readonly mailService: MailService,
     private readonly dayjsService: DayjsService,
@@ -39,7 +49,7 @@ export class ReportService {
         }
       | any,
   ): Promise<{ name: string; buffer: any }> {
-    const data = await this.generateHealthReportData(services);
+    const data = await this.getReportData(services);
 
     const generationDate = this.dayjs();
 
@@ -82,7 +92,7 @@ export class ReportService {
     this.pdfService.saveFile(`./${pdfReport.name}`, pdfReport.buffer);
   }
 
-  async generateHealthReportData(
+  async getReportData(
     services?: {
       elasticServices?: string[];
       apmServices?: string[];
@@ -90,87 +100,127 @@ export class ReportService {
     companyId?: string,
   ) {
     try {
-      const statistics = await this.elasticQueryService.getOverviewstatistics(
-        services?.elasticServices,
-        companyId,
+      const elasticCurrentWeekFilters: QueryFilter = {
+        services: services?.elasticServices,
+        companyId: companyId,
+        period: 'week',
+      };
+
+      const elasticLastWeekFilters: QueryFilter = {
+        services: services?.elasticServices,
+        companyId: companyId,
+        period: 'lastWeek',
+      };
+
+      const cwStatistics = await this.elasticQueryService.getOverviewStatistics(
+        elasticCurrentWeekFilters,
       );
 
-      const lastWeekstatistics =
-        await this.elasticQueryService.getOverviewstatistics(
-          services?.elasticServices,
-          companyId,
-          'lastWeek',
-        );
+      const lwStatistics = await this.elasticQueryService.getOverviewStatistics(
+        elasticLastWeekFilters,
+      );
 
-      const lastWeekTopLatencyEndpoints =
+      const cwTopLatencyEndpoints =
         await this.elasticQueryService.getTopEndpointsByLatency(
-          services?.elasticServices,
-          companyId,
-          5,
-          'lastWeek',
+          elasticCurrentWeekFilters,
         );
 
-      const topLatencyEndpoints =
+      const lwTopLatencyEndpoints =
         await this.elasticQueryService.getTopEndpointsByLatency(
-          services?.elasticServices,
-          companyId,
+          elasticLastWeekFilters,
         );
 
-      const lastWeekTopErrorEndpoints =
+      const cwTopErrorEndpoints =
         await this.elasticQueryService.getTopEndpointsByErrors(
-          services?.elasticServices,
-          companyId,
-          5,
-          'lastWeek',
+          elasticCurrentWeekFilters,
         );
 
-      const topErrorEndpoints =
+      const lwTopErrorEndpoints =
         await this.elasticQueryService.getTopEndpointsByErrors(
-          services?.elasticServices,
-          companyId,
+          elasticLastWeekFilters,
         );
 
-      const serviceHealth =
-        await this.elasticQueryService.getServiceHealth(companyId);
+      const cwServiceHealth = await this.elasticQueryService.getServicesHealth(
+        elasticCurrentWeekFilters,
+      );
 
-      const servicesHealth = this.servicesHealthParser.parse(serviceHealth);
+      const lwServiceHealth = await this.elasticQueryService.getServicesHealth(
+        elasticLastWeekFilters,
+      );
 
-      const lastWeekServiceHealth =
-        await this.elasticQueryService.getServiceHealth(companyId, 'lastWeek');
+      const servicesHealth = this.servicesHealthParser.parse(
+        cwServiceHealth,
+        cwServiceHealth,
+      );
 
-      const lastWeekServicesHealth = this.servicesHealthParser.parse(
-        lastWeekServiceHealth,
+      const cwUnitsAnalysis = await this.elasticQueryService.getUnitsAnalysis(
+        elasticCurrentWeekFilters,
+      );
+
+      const lwUnitsAnalysis = await this.elasticQueryService.getUnitsAnalysis(
+        elasticLastWeekFilters,
       );
 
       const userAnalysis = await this.elasticQueryService.getUserAnalysis(
-        services?.elasticServices,
-        companyId,
+        elasticCurrentWeekFilters,
       );
 
-      const errors = await this.apmQueryService.getApmErrorAnalysis(
-        services?.apmServices,
+      const apmCurrentWeekFilters: QueryFilter = {
+        services: services?.apmServices,
+        period: 'week',
+      };
+
+      const apmLastWeekFilters: QueryFilter = {
+        services: services?.apmServices,
+        period: 'lastWeek',
+      };
+
+      const cwServiceErrors = await this.apmQueryService.getApmErrorsByService(
+        apmCurrentWeekFilters,
+      );
+
+      const lwServiceErrors =
+        await this.apmQueryService.getApmErrorsByService(apmLastWeekFilters);
+
+      const cwUnitErrors = await this.apmQueryService.getApmErrorsByUnit(
+        apmCurrentWeekFilters,
+      );
+
+      const lwUnitErrors =
+        await this.apmQueryService.getApmErrorsByUnit(apmLastWeekFilters);
+
+      const httpAnalysis = await this.apmQueryService.getApmErrorAnalysis(
+        apmCurrentWeekFilters,
       );
 
       const data = {
-        statistics: this.statisticsParser.parse(statistics, lastWeekstatistics),
-        endpoints: this.endpointsParser.parse({
-          highestLatency: topLatencyEndpoints,
-          highestErrors: topErrorEndpoints,
-        }),
-        lastWeekEndpoints: this.endpointsParser.parse({
-          highestLatency: lastWeekTopLatencyEndpoints,
-          highestErrors: lastWeekTopErrorEndpoints,
-        }),
+        statistics: this.statisticsParser.parse(cwStatistics, lwStatistics),
+        endpoints: {
+          currentWeek: this.endpointsParser.parse({
+            highestLatency: cwTopLatencyEndpoints,
+            highestErrors: cwTopErrorEndpoints,
+          }),
+          lastWeek: this.endpointsParser.parse({
+            highestLatency: lwTopLatencyEndpoints,
+            highestErrors: lwTopErrorEndpoints,
+          }),
+        },
         services: servicesHealth.filter(
           (s) => !services?.elasticServices?.includes(s?.name),
         ),
-        lastWeekServices: lastWeekServicesHealth.filter(
-          (s) => !services?.elasticServices?.includes(s?.name),
-        ),
-        selectedServices: servicesHealth.filter((s) =>
-          services?.elasticServices?.includes(s?.name),
-        ),
-        errorReport: this.apmErrorsParser.parse(errors),
+        unitsAnalysis: {
+          currentWeek: this.unitAnalysisParser.parse(cwUnitsAnalysis),
+          lastWeek: this.unitAnalysisParser.parse(lwUnitsAnalysis),
+        },
+        errorsByService: {
+          currentWeek: this.apmServicesErrorsParser.parse(cwServiceErrors),
+          lastWeek: this.apmServicesErrorsParser.parse(lwServiceErrors),
+        },
+        errorsByUnit: {
+          currentWeek: this.apmUnitErrorsParser.parse(cwUnitErrors),
+          lastWeek: this.apmUnitErrorsParser.parse(lwUnitErrors),
+        },
+        httpAnalysis: this.apmHttpAnalysisParser.parse(httpAnalysis),
         ...this.userActivitiesParser.parse(userAnalysis),
       };
 

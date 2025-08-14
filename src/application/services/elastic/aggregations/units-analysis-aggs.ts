@@ -2,7 +2,7 @@ export const unitsAnalysisAggs = {
   stats_by_company: {
     terms: {
       field: 'companyAlias',
-      size: 5,
+      size: 6,
       order: {
         max_response_time: 'desc',
       },
