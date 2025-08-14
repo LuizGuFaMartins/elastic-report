@@ -19,6 +19,7 @@ import { ServicesHealthParser } from './application/services/elastic/parsers/ser
 import { UserActivitiesParser } from './application/services/elastic/parsers/users-activities-parser.service';
 import { ApmErrorsParser } from './application/services/apm/parsers/apm-errors-parser.service';
 import { ScheduleModule } from '@nestjs/schedule';
+import { UnitAnalysisParser } from './application/services/elastic/parsers/units-analysis-parser.service';
 
 @Module({
   controllers: [AppController],
@@ -51,6 +52,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     EndpointsParser,
     ServicesHealthParser,
     UserActivitiesParser,
+    UnitAnalysisParser,
     ApmErrorsParser,
   ],
 })

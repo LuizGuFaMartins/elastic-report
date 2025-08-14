@@ -22,13 +22,12 @@
         line-height: 1.4;
         color: #333;
         background: white;
-        margin-bottom: 20px;
       }
 
       .page {
         width: 210mm;
         min-height: 297mm;
-        padding: 15mm;
+        padding: 8mm;
         margin: 0 auto;
         background: white;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -383,29 +382,27 @@
           </div>
         </div>
 
-        <h3>Semana passada</h3>
-        <div class="traffic-info">
-          <p>
-            <strong>Pico de Tráfego Diário:</strong>
-            {{statistics.lastWeek.peakTrafficDaily}}
-          </p>
-          <p>
-            <strong>Pico de Tráfego por Hora:</strong>
-            {{statistics.lastWeek.peakTrafficHourly}}
-          </p>
-        </div>
-
-        <h3 style="margin-top: 10px">Semana atual</h3>
-        <div class="traffic-info">
-          <p>
-            <strong>Pico de Tráfego Diário:</strong>
-            {{statistics.currentWeek.peakTrafficDaily}}
-          </p>
-          <p>
-            <strong>Pico de Tráfego por Hora:</strong>
-            {{statistics.currentWeek.peakTrafficHourly}}
-          </p>
-        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Semana</th>
+              <th>Pico de Tráfego Diário</th>
+              <th>Pico de Tráfego por Hora:</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Passada</td>
+              <td>{{statistics.lastWeek.peakTrafficDaily}}</td>
+              <td>{{statistics.lastWeek.peakTrafficHourly}}</td>
+            </tr>
+            <tr>
+              <td>Atual</td>
+              <td>{{statistics.currentWeek.peakTrafficDaily}}</td>
+              <td>{{statistics.currentWeek.peakTrafficHourly}}</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <!-- Infraestrutura -->
@@ -441,62 +438,15 @@
         <h3 class="section-title">Comparação entre os serviços</h3>
       </div>
 
-      <!-- <div class="section">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th style="width: 200px">Serviço</th>
-              <th style="width: 200px">Latência Média</th>
-              <th style="width: 200px">Volume</th>
-              <th style="width: 200px">Taxa Erro</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#each selectedServices}}
-            <tr>
-              <td>{{this.name}}</td>
-              <td>{{this.avgLatency}}</td>
-              <td>{{this.volume}}</td>
-              <td>{{this.errorRate}}</td>
-            </tr>
-            {{/each}}
-          </tbody>
-        </table>
-      </div> -->
-
-      <h3>Semana passada</h3>
       <div class="section">
         <table class="data-table">
           <thead>
             <tr>
-              <th style="width: 200px">Serviço</th>
-              <th style="width: 200px">Latência Média</th>
-              <th style="width: 200px">Volume</th>
-              <th style="width: 200px">Taxa Erro</th>
-            </tr>
-          </thead>
-          <tbody>
-            {{#each lastWeekServices}}
-            <tr>
-              <td>{{this.name}}</td>
-              <td>{{this.avgLatency}}</td>
-              <td>{{this.volume}}</td>
-              <td>{{this.errorRate}}</td>
-            </tr>
-            {{/each}}
-          </tbody>
-        </table>
-      </div>
-
-      <h3>Semana atual</h3>
-      <div class="section">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th style="width: 200px">Serviço</th>
-              <th style="width: 200px">Latência Média</th>
-              <th style="width: 200px">Volume</th>
-              <th style="width: 200px">Taxa Erro</th>
+              <th>Serviço</th>
+              <th>Latência Média</th>
+              <th>Volume</th>
+              <th>Taxa Erro</th>
+              <th>Pico de trafego</th>
             </tr>
           </thead>
           <tbody>
@@ -506,6 +456,71 @@
               <td>{{this.avgLatency}}</td>
               <td>{{this.volume}}</td>
               <td>{{this.errorRate}}</td>
+              <td>
+                <div>{{this.lastPeakTraffic}} (passada)</div>
+                <div>{{this.currentPeakTraffic}} (atual)</div>
+              </td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Análise por unidades -->
+      <div class="section">
+        <h3 class="section-title">Análise por unidades</h3>
+      </div>
+
+      <h4 style="font-size: 11px; margin-bottom: 8px">Semana passada</h4>
+      <div class="section">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Unidades</th>
+              <th>Tempo Máx. Resposta</th>
+              <th>Tempo Médio Resposta</th>
+              <th>95% dos casos</th>
+              <th>99% dos casos</th>
+              <th>Volume</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each lastWeekUnits}}
+            <tr>
+              <td>{{this.name}}</td>
+              <td>{{this.maxResponseTime}}</td>
+              <td>{{this.avgResponseTime}}</td>
+              <td>{{this.p95}}</td>
+              <td>{{this.p99}}</td>
+              <td>{{this.volume}}</td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+
+      <h4 style="font-size: 11px; margin-bottom: 8px">Semana atual</h4>
+      <div class="section">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Unidades</th>
+              <th>Tempo Máx. Resposta</th>
+              <th>Tempo Médio Resposta</th>
+              <th>95% dos casos</th>
+              <th>99% dos casos</th>
+              <th>Volume</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each currentWeekUnits}}
+            <tr>
+              <td>{{this.name}}</td>
+              <td>{{this.maxResponseTime}}</td>
+              <td>{{this.avgResponseTime}}</td>
+              <td>{{this.p95}}</td>
+              <td>{{this.p99}}</td>
+              <td>{{this.volume}}</td>
             </tr>
             {{/each}}
           </tbody>
