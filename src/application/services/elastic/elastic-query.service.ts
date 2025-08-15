@@ -10,6 +10,7 @@ import { serviceHealthAggs } from './aggregations/services-health-aggs';
 import { usersAnalysisAggs } from './aggregations/users-analysis-aggs';
 import { unitsAnalysisAggs } from './aggregations/units-analysis-aggs';
 import { QueryFilter } from 'src/domain/models/dtos/query-filters.interface';
+import { servicesAnalysisAggs } from './aggregations/services-analysis-aggs';
 
 @Injectable()
 export class ElasticQueryService extends QueryService {
@@ -209,6 +210,25 @@ export class ElasticQueryService extends QueryService {
       },
       aggs: {
         ...unitsAnalysisAggs,
+      },
+    };
+
+    return await this.elasticHttp.post(
+      `/${process.env.ELASTIC_REQUEST_LOGS_INDEX}/_search`,
+      body,
+    );
+  }
+
+  async getServicesAnalysis(filters: QueryFilter) {
+    const query: any = this.buildQueryFilters(filters);
+
+    const body = {
+      size: 0,
+      query: {
+        ...query,
+      },
+      aggs: {
+        ...servicesAnalysisAggs,
       },
     };
 

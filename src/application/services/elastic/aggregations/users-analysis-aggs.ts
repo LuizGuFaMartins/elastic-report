@@ -2,7 +2,7 @@ export const usersAnalysisAggs = {
   top_users: {
     terms: {
       field: 'userEmail',
-      size: 6,
+      size: 10,
       order: {
         _count: 'desc',
       },
@@ -16,7 +16,7 @@ export const usersAnalysisAggs = {
       methods_used: {
         terms: {
           field: 'method',
-          size: 6,
+          size: 10,
         },
       },
       unique_ips: {
@@ -52,19 +52,19 @@ export const usersAnalysisAggs = {
       users: {
         terms: {
           field: 'userEmail',
-          size: 6,
+          size: 10,
         },
         aggs: {
           error_breakdown: {
             terms: {
               field: 'statusCode',
-              size: 6,
+              size: 10,
             },
           },
           most_failed_endpoints: {
             terms: {
               field: 'urlPath.keyword',
-              size: 6,
+              size: 10,
             },
           },
         },
@@ -74,7 +74,7 @@ export const usersAnalysisAggs = {
   suspicious_ips: {
     terms: {
       field: 'remoteIpAddress',
-      size: 6,
+      size: 10,
       min_doc_count: 1000,
     },
     aggs: {
@@ -109,7 +109,7 @@ export const usersAnalysisAggs = {
       top_endpoints: {
         terms: {
           field: 'urlPath.keyword',
-          size: 6,
+          size: 10,
         },
       },
     },
@@ -151,13 +151,13 @@ export const usersAnalysisAggs = {
       by_user: {
         terms: {
           field: 'userEmail',
-          size: 6,
+          size: 10,
         },
         aggs: {
           endpoints_accessed: {
             terms: {
               field: 'urlPath.keyword',
-              size: 6,
+              size: 10,
             },
           },
           success_rate: {

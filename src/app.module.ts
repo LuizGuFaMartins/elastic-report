@@ -23,6 +23,7 @@ import { UnitAnalysisParser } from './application/services/elastic/parsers/units
 import { ApmServicesErrorsParser } from './application/services/apm/parsers/services-errors-parser.service';
 import { ApmUnitErrorsParser } from './application/services/apm/parsers/unit-errors-parser.service';
 import { ApmHttpAnalysisParser } from './application/services/apm/parsers/apm-http-analysis-parser.service';
+import { ServicesAnalysisParser } from './application/services/elastic/parsers/services-analysis-parser.service';
 
 @Module({
   controllers: [AppController],
@@ -60,6 +61,7 @@ import { ApmHttpAnalysisParser } from './application/services/apm/parsers/apm-ht
     ApmServicesErrorsParser,
     ApmUnitErrorsParser,
     ApmHttpAnalysisParser,
+    ServicesAnalysisParser,
   ],
 })
 export class AppModule {}

@@ -16,6 +16,7 @@ import { ApmServicesErrorsParser } from '../apm/parsers/services-errors-parser.s
 import { ApmUnitErrorsParser } from '../apm/parsers/unit-errors-parser.service';
 import { unitsAnalysisAggs } from '../elastic/aggregations/units-analysis-aggs';
 import { ApmHttpAnalysisParser } from '../apm/parsers/apm-http-analysis-parser.service';
+import { ServicesAnalysisParser } from '../elastic/parsers/services-analysis-parser.service';
 
 @Injectable()
 export class ReportService {
@@ -29,6 +30,7 @@ export class ReportService {
     private readonly apmQueryService: ApmQueryService,
     private readonly servicesHealthParser: ServicesHealthParser,
     private readonly unitAnalysisParser: UnitAnalysisParser,
+    private readonly servicesAnalysisParser: ServicesAnalysisParser,
     private readonly userActivitiesParser: UserActivitiesParser,
     private readonly apmErrorsParser: ApmErrorsParser,
     private readonly apmHttpAnalysisParser: ApmHttpAnalysisParser,
@@ -74,7 +76,7 @@ export class ReportService {
         ?.trim()
         ?.toLocaleLowerCase() || 'qualiex';
 
-    const fileName = `relatorio-performance-${service}-${generationDate.format('DD-MM-YYYY')}.pdf`;
+    const fileName = `relatorio-performance-${service}-${generationDate.format('DD-MM-YYYY-HH-mm')}.pdf`;
 
     return {
       name: fileName,
@@ -150,7 +152,7 @@ export class ReportService {
 
       const servicesHealth = this.servicesHealthParser.parse(
         cwServiceHealth,
-        cwServiceHealth,
+        lwServiceHealth,
       );
 
       const cwUnitsAnalysis = await this.elasticQueryService.getUnitsAnalysis(
@@ -160,6 +162,16 @@ export class ReportService {
       const lwUnitsAnalysis = await this.elasticQueryService.getUnitsAnalysis(
         elasticLastWeekFilters,
       );
+
+      const cwServicesAnalysis =
+        await this.elasticQueryService.getServicesAnalysis(
+          elasticCurrentWeekFilters,
+        );
+
+      const lwServicesAnalysis =
+        await this.elasticQueryService.getServicesAnalysis(
+          elasticLastWeekFilters,
+        );
 
       const userAnalysis = await this.elasticQueryService.getUserAnalysis(
         elasticCurrentWeekFilters,
@@ -211,6 +223,10 @@ export class ReportService {
         unitsAnalysis: {
           currentWeek: this.unitAnalysisParser.parse(cwUnitsAnalysis),
           lastWeek: this.unitAnalysisParser.parse(lwUnitsAnalysis),
+        },
+        servicesAnalysis: {
+          currentWeek: this.servicesAnalysisParser.parse(cwServicesAnalysis),
+          lastWeek: this.servicesAnalysisParser.parse(lwServicesAnalysis),
         },
         errorsByService: {
           currentWeek: this.apmServicesErrorsParser.parse(cwServiceErrors),

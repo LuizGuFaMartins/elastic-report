@@ -5,7 +5,7 @@ export const apmServiceErrorsAggs = {
       order: {
         _count: 'desc',
       },
-      size: 10,
+      size: 6,
     },
     aggs: {
       timeout_errors: {
